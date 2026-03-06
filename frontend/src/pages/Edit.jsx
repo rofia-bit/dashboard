@@ -7,38 +7,43 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 
 const columns = [
-  { field: "id", headerName: "ID", width: 100, headerAlign: "left", align: "left" },
-  { field: "name", headerName: "Name", width: 150, headerAlign: "left", align: "left" },
-  { field: "email", headerName: "Email", width: 220, headerAlign: "left", align: "left" },
-  { field: "role", headerName: "Role", width: 140, headerAlign: "left", align: "left" },
+  { field: "id", headerName: "ID", flex: 0.5, minWidth: 70, headerAlign: "left", align: "left" },
+  { field: "name", headerName: "Name", flex: 1, minWidth: 120, headerAlign: "left", align: "left" },
+  { field: "email", headerName: "Email", flex: 1.5, minWidth: 180, headerAlign: "left", align: "left" },
+  { field: "role", headerName: "Role", flex: 1, minWidth: 110, headerAlign: "left", align: "left" },
   {
     field: "status",
     headerName: "Status",
-    width: 120,
+    flex: 0.8,
+    minWidth: 110,
     headerAlign: "left",
     align: "left",
     renderCell: (params) => (
-      <Chip
-        label={params.value}
-        sx={{
-          backgroundColor: params.value === "Active" ? "#10b981" : "#ef4444",
-          color: "#fff",
-          fontSize: 12,
-          fontWeight: 600,
-          height: 24,
-        }}
-      />
+      <Box display="flex" alignItems="center" height="100%">
+        <Chip
+          label={params.value}
+          sx={{
+            backgroundColor: params.value === "Active" ? "#10b981" : "#ef4444",
+            color: "#fff",
+            fontSize: 12,
+            fontWeight: 600,
+            height: 26,
+            borderRadius: "13px",
+          }}
+        />
+      </Box>
     ),
   },
   {
     field: "actions",
     headerName: "Actions",
-    width: 240,
+    flex: 1.8,
+    minWidth: 240,
     headerAlign: "center",
     align: "center",
     sortable: false,
     renderCell: (params) => (
-      <Box display="flex" gap={1} justifyContent="center">
+      <Box display="flex" gap={1} justifyContent="center" alignItems="center" height="100%">
         <Button
           size="small"
           sx={{
@@ -46,8 +51,9 @@ const columns = [
             border: "1px solid #2563eb",
             textTransform: "none",
             fontSize: 12,
-            padding: "4px 12px",
-            minWidth: "auto",
+            padding: "3px 12px",
+            minWidth: "unset",
+            lineHeight: 1.5,
             "&:hover": { backgroundColor: "rgba(37, 99, 235, 0.1)" },
           }}
         >
@@ -60,8 +66,9 @@ const columns = [
             border: "1px solid #ef4444",
             textTransform: "none",
             fontSize: 12,
-            padding: "4px 12px",
-            minWidth: "auto",
+            padding: "3px 12px",
+            minWidth: "unset",
+            lineHeight: 1.5,
             "&:hover": { backgroundColor: "rgba(239, 68, 68, 0.1)" },
           }}
         >
@@ -74,8 +81,9 @@ const columns = [
             border: `1px solid ${params.row.status === "Active" ? "#ef4444" : "#10b981"}`,
             textTransform: "none",
             fontSize: 12,
-            padding: "4px 12px",
-            minWidth: "auto",
+            padding: "3px 12px",
+            minWidth: "unset",
+            lineHeight: 1.5,
             "&:hover": {
               backgroundColor:
                 params.row.status === "Active"
@@ -91,14 +99,10 @@ const columns = [
   },
 ];
 
-
-
 const rows = [
   { id: 1, name: "Rofia", email: "d@gmail.com", role: "Resident", status: "Active" },
   { id: 2, name: "rndm", email: "g@gmail.com", role: "Guard", status: "Inactive" },
 ];
-
-
 
 function Users() {
   const [pageSize, setPageSize] = useState(10);
@@ -161,13 +165,13 @@ function Users() {
             <Typography sx={{ color: "#a0a9c9", fontSize: 14 }}>All</Typography>
           </Box>
 
-          <Box display="flex" gap={2} flexWrap="wrap">
+          <Box display="flex" gap={2} flexWrap="wrap" alignItems="center">
             <Select
               value={pageSize}
               onChange={(e) => setPageSize(e.target.value)}
               sx={{
-                width: 60,
-                height: 32,
+                width: 70,
+                height: 36,
                 backgroundColor: "#1f2a5a",
                 color: "#a0a9c9",
                 fontSize: 13,
@@ -182,7 +186,16 @@ function Users() {
               <MenuItem value={25}>25</MenuItem>
             </Select>
 
-            <Box display="flex" alignItems="center" bgcolor="#1f2a5a" borderRadius={1} px={2} py={1} width={200}>
+            <Box
+              display="flex"
+              alignItems="center"
+              bgcolor="#1f2a5a"
+              borderRadius={1}
+              px={2}
+              height={36}
+              width={200}
+              sx={{ border: "1px solid #2a3a6a" }}
+            >
               <InputBase
                 placeholder="Search..."
                 sx={{
@@ -201,13 +214,56 @@ function Users() {
             bgcolor: "#111c44",
             borderRadius: 2,
             border: "1px solid #1f2a5a",
-            "& .MuiDataGrid-root": { border: "none", backgroundColor: "#111c44", fontSize: 13 },
-            "& .MuiDataGrid-cell": { color: "#e0e0e0", borderColor: "#1f2a5a", padding: "12px 8px" },
-            "& .MuiDataGrid-columnHeaders": { backgroundColor: "#0a1526", borderColor: "#1f2a5a" },
-            "& .MuiDataGrid-columnHeaderTitle": { color: "#a0a9c9", fontWeight: 600, fontSize: 12 },
-            "& .MuiDataGrid-row:hover": { backgroundColor: "#1a2749 !important" },
-            "& .MuiDataGrid-row": { backgroundColor: "#111c44" },
-            "& .MuiTablePagination-root": { color: "#a0a9c9", fontSize: 12 },
+            overflow: "hidden",
+            "& .MuiDataGrid-root": {
+              border: "none",
+              backgroundColor: "#111c44",
+              fontSize: 13,
+              color: "#e0e0e0",
+            },
+            "& .MuiDataGrid-cell": {
+              color: "#e0e0e0",
+              borderColor: "#1f2a5a",
+              display: "flex",
+              alignItems: "center",
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "#0d1635",
+              borderBottom: "1px solid #1f2a5a",
+            },
+            "& .MuiDataGrid-columnHeader": {
+              backgroundColor: "#0d1635",
+            },
+            "& .MuiDataGrid-columnHeaderTitle": {
+              color: "#a0a9c9",
+              fontWeight: 600,
+              fontSize: 13,
+            },
+            "& .MuiDataGrid-columnSeparator": {
+              color: "#1f2a5a",
+            },
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "#1a2749 !important",
+            },
+            "& .MuiDataGrid-row": {
+              backgroundColor: "#111c44",
+              borderBottom: "1px solid #1f2a5a",
+            },
+            "& .MuiDataGrid-footerContainer": {
+              backgroundColor: "#0d1635",
+              borderTop: "1px solid #1f2a5a",
+            },
+            "& .MuiTablePagination-root": {
+              color: "#a0a9c9",
+              fontSize: 12,
+            },
+            "& .MuiTablePagination-selectIcon": { color: "#a0a9c9" },
+            "& .MuiTablePagination-actions button": { color: "#a0a9c9" },
+            "& .MuiDataGrid-selectedRowCount": { color: "#a0a9c9" },
+            "& .MuiCheckbox-root": { color: "#2563eb" },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: "#111c44",
+            },
           }}
         >
           <DataGrid
@@ -215,7 +271,9 @@ function Users() {
             columns={columns}
             pageSizeOptions={[5, 10, 25]}
             initialState={{ pagination: { paginationModel: { pageSize } } }}
-            sx={{ "& .MuiCheckbox-root": { color: "#2563eb" }, height: 500 }}
+            rowHeight={56}
+            sx={{ height: 500 }}
+            disableRowSelectionOnClick
           />
         </Box>
       </Box>
@@ -224,12 +282,26 @@ function Users() {
         open={openModal}
         onClose={handleCloseModal}
         PaperProps={{
-          sx: { backgroundColor: "#0a1f4d", borderRadius: 2, minWidth: 500, border: "1px solid #1f2a5a" },
+          sx: {
+            backgroundColor: "#0a1f4d",
+            borderRadius: 2,
+            minWidth: 500,
+            border: "1px solid #1f2a5a",
+          },
         }}
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center" p={3} borderBottom="1px solid #1f2a5a">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          p={3}
+          borderBottom="1px solid #1f2a5a"
+        >
           <Typography sx={{ color: "#fff", fontSize: 24, fontWeight: 700 }}>Add User</Typography>
-          <IconButton onClick={handleCloseModal} sx={{ color: "#a0a9c9", "&:hover": { backgroundColor: "#1f2a5a" } }}>
+          <IconButton
+            onClick={handleCloseModal}
+            sx={{ color: "#a0a9c9", "&:hover": { backgroundColor: "#1f2a5a" } }}
+          >
             <CloseIcon />
           </IconButton>
         </Box>
@@ -241,6 +313,7 @@ function Users() {
               placeholder="Name"
               value={formData.fullName}
               onChange={(e) => handleFormChange("fullName", e.target.value)}
+              InputLabelProps={{ sx: { color: "#a0a9c9" } }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "transparent",
@@ -257,6 +330,7 @@ function Users() {
               placeholder="example@gmail.com"
               value={formData.email}
               onChange={(e) => handleFormChange("email", e.target.value)}
+              InputLabelProps={{ sx: { color: "#a0a9c9" } }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "transparent",
@@ -277,6 +351,7 @@ function Users() {
                 fontSize: 13,
                 borderRadius: 2,
                 "& .MuiSvgIcon-root": { color: "#a0a9c9" },
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "#2a3a6a" },
               }}
             >
               <MenuItem value="Resident">Resident</MenuItem>
