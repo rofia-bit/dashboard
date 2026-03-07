@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
-import Sidebar from "../components/sidebar";
-import Navbar from "../components/navbar";
-import Card from "../components/card";
+import Sidebar from "../components/sidebar.jsx";
+import Navbar from "../components/navbar.jsx";
+import Card from "../components/card.jsx";
 
 function Dashboard() {
   return (

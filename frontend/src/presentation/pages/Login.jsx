@@ -1,5 +1,8 @@
 import { Box, TextField, Button, Typography, Checkbox, FormControlLabel, Divider, Stack } from "@mui/material";
 import { useState } from "react";
+import {AuthRepositoryImpl} from "../../data/repositories/auth/AuthRepositoryImpl.js";
+import {AuthUseCase} from "../../domain/usecases/auth/AuthUseCase.js";
+import {useLogin} from "../hooks/auth/login/useLogin.js";
 
 function StyledTextField({ label, placeholder, type = "text", value, onChange }) {
   return (
@@ -32,10 +35,21 @@ function StyledTextField({ label, placeholder, type = "text", value, onChange })
 }
 
 
+const authRepository = new AuthRepositoryImpl();
+const authUseCase = new AuthUseCase(authRepository);
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+    const {login,loading,error} = useLogin(authUseCase);
+
+
+    const handleLogin = () => {
+        login(email,password);
+    };
+
+
 
   const buttonStyle = {
     textTransform: "none",
@@ -104,24 +118,21 @@ function Login() {
 
 
 
-          <Button fullWidth sx={{ ...buttonStyle, backgroundColor: "#0099ff", color: "#fff", "&:hover": { backgroundColor: "#1a1a1a" } }}>
-            Login
-          </Button>
+            <Button
+                fullWidth
+                onClick={handleLogin}
+                disabled={loading}
+                sx={{
+                    ...buttonStyle,
+                    backgroundColor: "#0099ff",
+                    color: "#fff",
+                    "&:hover": { backgroundColor: "#1a1a1a" },
+                }}
+            >
+                {loading ? "Loading..." : "Login"}
+            </Button>
 
 
-
-          <Stack direction="row" alignItems="center" spacing={1.5}>
-            <Divider sx={{ flex: 1, borderColor: "#374151" }} />
-            <Typography sx={{ color: "#a0a9c9", fontSize: 12 }}>OR</Typography>
-            <Divider sx={{ flex: 1, borderColor: "#374151" }} />
-          </Stack>
-
-          <Box display="flex" justifyContent="center" gap={0.5} mt={1}>
-            <Typography sx={{ color: "#a0a9c9", fontSize: 12 }}>Don't have an account?</Typography>
-            <Typography sx={{ color: "#2563eb", fontSize: 12, fontWeight: 600, cursor: "pointer", "&:hover": { color: "#1d4ed8" } }}>
-              Sign up here
-            </Typography>
-          </Box>
         </Stack>
       </Box>
     </Box>

@@ -1,7 +1,7 @@
 import { Box, Button, Typography, Chip, InputBase, MenuItem, Select, Dialog, DialogContent, TextField, IconButton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import Sidebar from "../components/sidebar";
-import Navbar from "../components/navbar";
+import Sidebar from "../components/sidebar.jsx";
+import Navbar from "../components/navbar.jsx";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
