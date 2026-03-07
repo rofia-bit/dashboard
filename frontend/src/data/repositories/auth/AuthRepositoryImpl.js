@@ -2,6 +2,7 @@ import {AuthRepository} from "../../../domain/repositories/auth/AuthRepository.j
 import {LoginResponseDto} from "../../dto/auth/login/response/LoginResponseDto.js";
 import {LoginRequestDto} from "../../dto/auth/login/request/LoginRequestDto.js";
 import {AuthToken} from "../../../domain/entity/auth/AuthToken.js";
+import {User} from "../../../domain/entity/user/User.js";
 
 export class AuthRepositoryImpl extends AuthRepository {
 
@@ -28,4 +29,25 @@ export class AuthRepositoryImpl extends AuthRepository {
         return new AuthToken(responseDto.token);
     }
 
+
+    async getMe(token) {
+
+        const response = await fetch("http://localhost:8081/auth/me" , {
+            method: "GET" ,
+            headers :{
+                "Content-Type": "application/json" ,
+                "Authorization": `Bearer ${token}`
+            } ,
+        })
+
+        const json = await response.json();
+
+        if (!response.ok) {
+            throw new Error(json.message || "Login failed");
+        }
+
+        const me = User.fromJson(json) ;
+
+        return me;
+    }
 }

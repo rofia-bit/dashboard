@@ -4,11 +4,34 @@ import Sidebar from "../components/sidebar.jsx";
 import Navbar from "../components/navbar.jsx";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState } from "react";
+import {useEffect, useState} from "react";
+import {UserRepositoryImpl} from "../../data/repositories/users/UserRepositoryImpl.js";
+import {UserUseCase} from "../../domain/usecases/users/UserUseCase.js";
+import {useGetUsers} from "../hooks/users/getAllUsers/useGetUsers.js";
 
 const columns = [
-  { field: "id", headerName: "ID", flex: 0.5, minWidth: 70, headerAlign: "left", align: "left" },
-  { field: "name", headerName: "Name", flex: 1, minWidth: 120, headerAlign: "left", align: "left" },
+    {
+        field: "imageUrl",
+        headerName: "Avatar",
+        width: 80,
+        sortable: false,
+        renderCell: (params) => (
+            <Box display="flex" alignItems="center" height="100%">
+                <img
+                    src={`http://localhost:8081${params.value}`}
+                    alt="user"
+                    style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        objectFit: "cover"
+                    }}
+                />
+            </Box>
+        ),
+    },
+  { field: "userId", headerName: "ID", flex: 0.5, minWidth: 70, headerAlign: "left", align: "left" },
+  { field: "fullName", headerName: "Name", flex: 1, minWidth: 120, headerAlign: "left", align: "left" },
   { field: "email", headerName: "Email", flex: 1.5, minWidth: 180, headerAlign: "left", align: "left" },
   { field: "role", headerName: "Role", flex: 1, minWidth: 110, headerAlign: "left", align: "left" },
   {
@@ -99,10 +122,8 @@ const columns = [
   },
 ];
 
-const rows = [
-  { id: 1, name: "Rofia", email: "d@gmail.com", role: "Resident", status: "Active" },
-  { id: 2, name: "rndm", email: "g@gmail.com", role: "Guard", status: "Inactive" },
-];
+const userRepository = new UserRepositoryImpl();
+const userUseCase = new UserUseCase(userRepository);
 
 function Users() {
   const [pageSize, setPageSize] = useState(10);
@@ -112,6 +133,37 @@ function Users() {
     email: "",
     role: "Resident",
   });
+
+    const { users, loading, error, getUsers } = useGetUsers(userUseCase);
+
+    useEffect(() => {
+        getUsers();
+    }, []);
+
+    if (loading) {
+        return (
+            <Box p={5}>
+                <Typography>Loading users...</Typography>
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box p={5}>
+                <Typography color="error">{error}</Typography>
+            </Box>
+        );
+    }
+
+    const rows = users.map(user => ({
+        userId: user.userId,
+        fullName: user.fullname,
+        email: user.email,
+        role: user.role,
+        imageUrl: user.imageUrl,
+        status: "Active"
+    }));
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => {
@@ -143,7 +195,6 @@ function Users() {
         px={3}
       >
         <Navbar />
-
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
           <Box display="flex" gap={2} alignItems="center">
             <Button
@@ -266,15 +317,17 @@ function Users() {
             },
           }}
         >
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            pageSizeOptions={[5, 10, 25]}
-            initialState={{ pagination: { paginationModel: { pageSize } } }}
-            rowHeight={56}
-            sx={{ height: 500 }}
-            disableRowSelectionOnClick
-          />
+            <DataGrid
+                rows={rows}
+                columns={columns}
+                getRowId={(row) => row.userId}
+                pageSizeOptions={[5,10,25]}
+                paginationModel={{ pageSize, page: 0 }}
+                onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+                rowHeight={56}
+                sx={{ height: 500 }}
+                disableRowSelectionOnClick
+            />
         </Box>
       </Box>
 

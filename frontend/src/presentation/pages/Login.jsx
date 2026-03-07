@@ -3,6 +3,8 @@ import { useState } from "react";
 import {AuthRepositoryImpl} from "../../data/repositories/auth/AuthRepositoryImpl.js";
 import {AuthUseCase} from "../../domain/usecases/auth/AuthUseCase.js";
 import {useLogin} from "../hooks/auth/login/useLogin.js";
+import {useGetMe} from "../hooks/auth/me/useGetMe.js";
+import {useNavigate} from "react-router-dom";
 
 function StyledTextField({ label, placeholder, type = "text", value, onChange }) {
   return (
@@ -41,12 +43,26 @@ const authUseCase = new AuthUseCase(authRepository);
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-    const {login,loading,error} = useLogin(authUseCase);
+
+  const {login,loading,error} = useLogin(authUseCase);
+  const { getMe } = useGetMe(authUseCase);
 
 
-    const handleLogin = () => {
-        login(email,password);
+    const handleLogin = async () => {
+
+        const token = await login(email, password);
+
+        if (!token) return;
+
+        const user = await getMe(token);
+
+        if (user) {
+            console.log("User authenticated:", user);
+            navigate("/dashboard")
+        }
+
     };
 
 
@@ -103,7 +119,16 @@ function Login() {
 
           <StyledTextField label="Email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
           <StyledTextField label="Password" placeholder="Enter your password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-
+            {error && (
+                <Typography
+                    sx={{
+                        color: "#ef4444",
+                        fontSize: 12
+                    }}
+                >
+                    {error}
+                </Typography>
+            )}
 
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <FormControlLabel
