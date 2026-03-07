@@ -20,7 +20,9 @@ export function useGetMe(authUseCase) {
             }
 
             setSuccess("Login successful");
+            localStorage.setItem("user", JSON.stringify(result));
             console.log(result);
+            console.log(result.fullname);
 
             return result;
         } catch (err) {

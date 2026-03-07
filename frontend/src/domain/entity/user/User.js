@@ -1,16 +1,14 @@
-import js from "@eslint/js";
-
 export class User {
 
     constructor(
         email ,
-        fullName ,
+        fullname ,
         imageUrl ,
         role ,
         userId
     ) {
         this.email = email;
-        this.fullName = fullName;
+        this.fullname = fullname;
         this.imageUrl = imageUrl;
         this.role = role;
         this.userId = userId;
@@ -19,7 +17,7 @@ export class User {
     static fromJson(json) {
         return new User(
             json.email ,
-            json.fullName ,
+            json.fullname ,
             json.imageUrl ,
             json.role ,
             json.userId ,

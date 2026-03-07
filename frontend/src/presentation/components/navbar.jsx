@@ -2,6 +2,7 @@ import { Box, InputBase, IconButton, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
+import {useState} from "react";
 
 const iconStyle = {
   color: "#a0a9c9",
@@ -12,6 +13,24 @@ const iconStyle = {
 };
 
 function Navbar() {
+
+  const [fullName] = useState(() => {
+
+    const storedUser = localStorage.getItem("user");
+
+    console.log("storedUser", storedUser);
+
+    if (!storedUser) return "";
+
+    try {
+      const user = JSON.parse(storedUser);
+      return user.fullname || "";
+    } catch {
+      return "";
+    }
+
+  });
+
   return (
     <Box
       display="flex"
@@ -28,7 +47,7 @@ function Navbar() {
           Welcome!
         </Typography>
         <Typography sx={{ color: "#a0a9c9", fontSize: 12 }}>
-          talk talk talk
+          {fullName ? `Logged in as ${fullName}` : "Loading..."}
         </Typography>
       </Box>
 
