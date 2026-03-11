@@ -41,14 +41,14 @@ const authRepository = new AuthRepositoryImpl();
 const authUseCase = new AuthUseCase(authRepository);
 
 function Login() {
+    console.log(localStorage.getItem("token"));
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
 
     const {login, loading, error} = useLogin(authUseCase);
-    const {getMe} = useGetMe(authUseCase);
-
+    const {getMe, error: roleError} = useGetMe(authUseCase);
 
     const handleLogin = async () => {
 
@@ -131,6 +131,17 @@ function Login() {
                             }}
                         >
                             {error}
+                        </Typography>
+                    )}
+
+                    {roleError && (
+                        <Typography
+                            sx={{
+                                color: "#ef4444",
+                                fontSize: 12
+                            }}
+                        >
+                            {roleError}
                         </Typography>
                     )}
 

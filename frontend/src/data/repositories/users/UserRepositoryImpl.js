@@ -22,4 +22,47 @@ export class UserRepositoryImpl {
         return json;
     }
 
+    async registerUser(request) {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("http://localhost:8081/users/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json" ,
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(request)
+        });
+
+        const json = await response.json();
+
+        if (!response.ok) {
+            throw new Error(json.message || "Failed to create user");
+        }
+
+        return json;
+    }
+
+
+    async deleteUser(userId) {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:8081/users/${userId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json" ,
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to delete user");
+        }
+
+        return true;
+    }
+
+
 }

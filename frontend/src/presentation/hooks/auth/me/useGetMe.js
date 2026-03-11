@@ -14,7 +14,8 @@ export function useGetMe(authUseCase) {
 
             const result = await authUseCase.getMe(token);
 
-            if (!result.role === "ADMIN") {
+            if (result.role !== "ADMIN") {
+                localStorage.removeItem("token");
                 setError("You don't have permission to use this action!");
                 return null;
             }

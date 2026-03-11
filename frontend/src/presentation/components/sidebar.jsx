@@ -204,7 +204,10 @@ function Sidebar() {
 
         <ListItem
           button
-          onClick={() => navigate("/.")}
+          onClick={() => {
+              localStorage.clear()
+              navigate("/.")
+          }}
           sx={{
             borderRadius: 1.5,
             "&:hover": { backgroundColor: "#1c264c" },
