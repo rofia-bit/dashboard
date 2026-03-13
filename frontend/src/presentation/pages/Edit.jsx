@@ -12,7 +12,6 @@ import {
     IconButton
 } from "@mui/material";
 import {DataGrid} from "@mui/x-data-grid";
-import Sidebar from "../components/sidebar.jsx";
 import Navbar from "../components/navbar.jsx";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -227,18 +226,15 @@ function Users() {
     };
 
     return (
-        <Box display="flex" bgcolor="#0f1523" minHeight="100vh">
-            <Sidebar/>
-
+        <Box display="flex" flexDirection="column" flex={1}>
             <Box
                 flex={1}
                 display="flex"
                 flexDirection="column"
-                ml="220px"
                 pt={3}
                 px={3}
             >
-                <Navbar/>
+                <Navbar />
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
                     <Box display="flex" gap={2} alignItems="center">
                         <Button
