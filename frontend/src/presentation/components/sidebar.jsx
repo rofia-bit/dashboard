@@ -16,12 +16,12 @@ function Sidebar() {
 
   const generalItems = [
     { icon: <DashboardIcon />, label: "Dashboard", path: "/Dashboard" },
-    { icon: <WarningIcon />, label: "Incidents", path: "/." },
+    { icon: <WarningIcon />, label: "Incidents", path: "/incidents" },
     { icon: <PeopleIcon />, label: "Users", path: "/Edit" },
   ];
 
   const reportItems = [
-    { icon: <InsightsIcon />, label: "Incidents Details", path: "/Incidents" },
+    { icon: <InsightsIcon />, label: "Incidents Details", path: "/." },
   ];
 
   const settingsItems = [
