@@ -21,7 +21,7 @@ function Sidebar() {
   ];
 
   const reportItems = [
-    { icon: <InsightsIcon />, label: "Incidents Details", path: "/." },
+    { icon: <InsightsIcon />, label: "Incidents Details", path: "/Incidents" },
   ];
 
   const settingsItems = [
