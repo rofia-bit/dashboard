@@ -3,6 +3,7 @@ import { Box } from "@mui/material";
 import Login from "./presentation/pages/Login";
 import Dashboard from "./presentation/pages/Dashboard";
 import Edit from "./presentation/pages/Edit";
+import Incidents from "./presentation/pages/Incidents";
 import Sidebar from "./presentation/components/sidebar.jsx";
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
       <Route element={<AppLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/edit" element={<Edit />} />
+        <Route path="/incidents" element={<Incidents />} />
       </Route>
     </Routes>
   );
@@ -28,6 +30,5 @@ function AppLayout() {
     </Box>
   );
 }
-
 
 export default App;
