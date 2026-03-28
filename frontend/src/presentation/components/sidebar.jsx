@@ -25,8 +25,8 @@ function Sidebar() {
   ];
 
   const settingsItems = [
-    { icon: <SettingsIcon />, label: "Settings", path: "/." },
-    { icon: <HelpIcon />, label: "Help & Support", path: "/." },
+    { icon: <SettingsIcon />, label: "Settings", path: "/settings" },
+    { icon: <HelpIcon />, label: "Help & Support", path: "/help" },
   ];
 
 
