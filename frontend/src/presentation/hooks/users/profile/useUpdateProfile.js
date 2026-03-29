@@ -1,16 +1,19 @@
 import { useState } from "react";
 
-export function useEditPassword(userUseCase) {
+export function useUpdateProfile(userUseCase) {
     const [loading, setLoading] = useState(false);
     const [error, setError]     = useState(null);
     const [success, setSuccess] = useState(false);
 
-    const editPassword = async (email, newPassword) => {
+    const updateProfile = async (fullname, email) => {
         setLoading(true);
         setError(null);
         setSuccess(false);
         try {
-            const result = await userUseCase.editPassword(email, newPassword);
+            const result = await userUseCase.updateProfile(fullname, email);
+            // keep localStorage in sync
+            const stored = JSON.parse(localStorage.getItem("user") || "{}");
+            localStorage.setItem("user", JSON.stringify({ ...stored, fullname, email }));
             setSuccess(true);
             return result;
         } catch (err) {
@@ -21,5 +24,5 @@ export function useEditPassword(userUseCase) {
         }
     };
 
-    return { editPassword, loading, error, success };
+    return { updateProfile, loading, error, success };
 }
