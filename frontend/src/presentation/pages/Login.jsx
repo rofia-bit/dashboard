@@ -3,8 +3,7 @@ import {useState} from "react";
 import {AuthRepositoryImpl} from "../../data/repositories/auth/AuthRepositoryImpl.js";
 import {AuthUseCase} from "../../domain/usecases/auth/AuthUseCase.js";
 import {useLogin} from "../hooks/auth/login/useLogin.js";
-import {useGetMe} from "../hooks/auth/me/useGetMe.js";
-import {useNavigate} from "react-router-dom";
+import { useGetMe } from "../hooks/auth/me/useGetMe.js";
 
 function StyledTextField({label, placeholder, type = "text", value, onChange}) {
     return (
@@ -44,7 +43,7 @@ function Login() {
     console.log(localStorage.getItem("token"));
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+
 
 
     const {login, loading, error} = useLogin(authUseCase);
@@ -56,12 +55,13 @@ function Login() {
 
         if (!token) return;
 
-        const user = await getMe(token);
+        //const user = await getMe(token);
+        await getMe(token);
 
-        if (user) {
+        /*if (user) {
             console.log("User authenticated:", user);
             navigate("/dashboard")
-        }
+        }*/
 
     };
 

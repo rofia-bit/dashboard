@@ -1,10 +1,14 @@
 import {useState} from "react";
+import { useNavigate } from "react-router-dom";
 
 export function useGetMe(authUseCase) {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const navigate = useNavigate();
+
+    const ALLOWED_ROLES = ["ADMIN", "SECURITY_GUARD"];
 
     const getMe = async (token) => {
         try {
@@ -14,7 +18,7 @@ export function useGetMe(authUseCase) {
 
             const result = await authUseCase.getMe(token);
 
-            if (result.role !== "ADMIN") {
+            if (!ALLOWED_ROLES.includes(result.role)) {
                 localStorage.removeItem("token");
                 setError("You don't have permission to use this action!");
                 return null;
@@ -22,10 +26,15 @@ export function useGetMe(authUseCase) {
 
             setSuccess("Login successful");
             localStorage.setItem("user", JSON.stringify(result));
-            console.log(result);
-            console.log(result.fullname);
+
+            if (result.role === "ADMIN") {
+                navigate("/dashboard");
+            } else if (result.role === "SECURITY_GUARD") {
+                navigate("/guard");
+            }
 
             return result;
+
         } catch (err) {
             setError(err.message || "Something went wrong");
             return null;

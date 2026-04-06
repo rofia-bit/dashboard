@@ -1,34 +1,102 @@
+/* eslint-disable no-unused-vars */
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import WarningIcon from "@mui/icons-material/Warning";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import InsightsIcon from "@mui/icons-material/Insights";
+//import InsightsIcon from "@mui/icons-material/Insights";
 import HelpIcon from "@mui/icons-material/Help";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import { Box, List, ListItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 
+const ADMIN_MENU = {
+    title: "Dashboard",
+    sections: [
+        {
+            label: "General",
+            items: [
+                { icon: <DashboardIcon />, label: "Dashboard",  path: "/dashboard" },
+                { icon: <WarningIcon />,   label: "Incidents",  path: "/incidents" },
+                { icon: <PeopleIcon />,    label: "Users",      path: "/Edit" },
+            ],
+        },
+        {
+            label: "Reports",
+            items: [
+               // { icon: <InsightsIcon />, label: "Incidents Details", path: "/." },
+            ],
+        },
+    ],
+    settingsItems: [
+        { icon: <SettingsIcon />, label: "Settings",      path: "/settings" },
+        { icon: <HelpIcon />,     label: "Help & Support", path: "/help" },
+    ],
+};
+ 
+const GUARD_MENU = {
+    title: "Guard Board",
+    sections: [
+        {
+            label: "General",
+            items: [
+                { icon: <DashboardIcon />,    label: "Dashboard",   path: "/guard" },
+                { icon: <QrCodeScannerIcon />, label: "QR Scanner",  path: "/guard/qr" },
+                { icon: <ListAltIcon />,       label: "Access Logs", path: "/guard/logs" },
+                { icon: <AccessTimeIcon />,    label: "My Shifts",   path: "/guard/shifts" },
+            ],
+        },
+    ],
+    settingsItems: [
+        { icon: <SettingsIcon />, label: "Settings",      path: "/settings" },
+        //{ icon: <HelpIcon />,     label: "Help & Support", path: "/help" },
+    ],
+};
+ 
+
+function NavItem({ item, navigate, active }) {
+    return (
+        <ListItem
+            button
+            onClick={() => navigate(item.path)}
+            sx={{
+                mb: 1, borderRadius: 1.5,
+                bgcolor: active ? "#2563eb20" : "transparent",
+                border: active ? "1px solid #2563eb40" : "1px solid transparent",
+                "&:hover": { backgroundColor: active ? "#2563eb20" : "#1c264c" },
+                cursor: "pointer", py: 1.2, px: 1,
+            }}
+        >
+            <ListItemIcon sx={{ color: active ? "#2563eb" : "#a0a9c9", minWidth: 36 }}>
+                {item.icon}
+            </ListItemIcon>
+            <ListItemText
+                primary={item.label}
+                sx={{ "& .MuiListItemText-primary": { color: active ? "#2563eb" : "#a0a9c9", fontSize: 13, fontWeight: active ? 600 : 500 } }}
+            />
+        </ListItem>
+    );
+}
+
+//------
 
 function Sidebar() {
   const navigate = useNavigate();
+  const user     = JSON.parse(localStorage.getItem("user") || "{}");
+  //const menu = user.role === "SECURITY_GUARD" ? GUARD_MENU : ADMIN_MENU;
+  const menu = GUARD_MENU;
+  const [activePath, setActivePath] = useState(localStorage.getItem("activeSidebarPath") || menu.sections[0].items[0].path);
 
-  const generalItems = [
-    { icon: <DashboardIcon />, label: "Dashboard", path: "/Dashboard" },
-    { icon: <WarningIcon />, label: "Incidents", path: "/incidents" },
-    { icon: <PeopleIcon />, label: "Users", path: "/Edit" },
-  ];
-
-  const reportItems = [
-    { icon: <InsightsIcon />, label: "Incidents Details", path: "/." },
-  ];
-
-  const settingsItems = [
-    { icon: <SettingsIcon />, label: "Settings", path: "/settings" },
-    { icon: <HelpIcon />, label: "Help & Support", path: "/help" },
-  ];
-
+  const handleNavigation = (path) => {
+    setActivePath(path);
+    localStorage.setItem("activeSidebarPath", path);
+    navigate(path);
+  };
 
   return (
     <Box
@@ -59,11 +127,11 @@ function Sidebar() {
             letterSpacing: 1,
           }}
         >
-         Dashboard
+         {menu.title}
         </Typography>
       </Box>
 
-      {/* bar */}
+
       <Box
         sx={{
           flex: 1,
@@ -75,158 +143,57 @@ function Sidebar() {
       >
 
 
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            sx={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: "#6b7280",
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-              mb: 1.5,
-              px: 1,
-            }}
-          >
-            General
-          </Typography>
-          <List sx={{ px: 0 }}>
-            {generalItems.map((item, index) => (
-              <ListItem
-                button
-                key={index}
-                onClick={() => navigate(item.path)}
-                sx={{
-                  mb: 1,
-                  borderRadius: 1.5,
-                  "&:hover": { backgroundColor: "#1c264c" },
-                  cursor: "pointer",
-                  py: 1.2,
-                  px: 1,
-                }}
-              >
-                <ListItemIcon sx={{ color: "#a0a9c9", minWidth: 36 }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  sx={{ "& .MuiListItemText-primary": { color: "#a0a9c9", fontSize: 13, fontWeight: 500 } }}
-                />
-              </ListItem>
-            ))}
-          </List>
+        {menu.sections.map((section) => (
+                    <Box key={section.label} sx={{ mb: 4 }}>
+                        <Typography sx={{
+                            fontSize: 11, fontWeight: 700, color: "#6b7280",
+                            textTransform: "uppercase", letterSpacing: 0.5, mb: 1.5, px: 1,
+                        }}>
+                            {section.label}
+                        </Typography>
+                        <List sx={{ px: 0 }}>
+                            {section.items.map((item, i) => (
+                                <NavItem key={i} item={item} navigate={handleNavigation} active={activePath === item.path} />
+                            ))}
+                        </List>
+                    </Box>
+                ))}
+            </Box>
+
+
+            <Box sx={{ borderTop: "1px solid #1f2a5a", pt: 3 }}>
+                <Typography sx={{
+                    fontSize: 11, fontWeight: 700, color: "#6b7280",
+                    textTransform: "uppercase", letterSpacing: 0.5, mb: 1.5, px: 1,
+                }}>
+                    Settings
+                </Typography>
+                <List sx={{ px: 0, mb: 2 }}>
+                    {menu.settingsItems.map((item, i) => (
+                        <NavItem key={i} item={item} navigate={handleNavigation} active={activePath === item.path} />
+                    ))}
+                </List>
+
+                <ListItem
+                    button
+                    onClick={() => { localStorage.clear(); navigate("/"); }}
+                    sx={{
+                        borderRadius: 1.5,
+                        "&:hover": { backgroundColor: "#1c264c" },
+                        cursor: "pointer", py: 1.3, px: 1,
+                    }}
+                >
+                    <ListItemIcon sx={{ color: "#ef4444", minWidth: 36 }}>
+                        <LogoutIcon sx={{ fontSize: 21 }} />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary="Log Out"
+                        sx={{ "& .MuiListItemText-primary": { color: "#ef4444", fontSize: 14, fontWeight: 500 } }}
+                    />
+                </ListItem>
+            </Box>
         </Box>
-
-
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            sx={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: "#6b7280",
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-              mb: 1.5,
-              px: 1,
-            }}
-          >
-            Reports
-          </Typography>
-          <List sx={{ px: 0 }}>
-            {reportItems.map((item, index) => (
-              <ListItem
-                button
-                key={index}
-                onClick={() => navigate(item.path)}
-                sx={{
-                  mb: 1,
-                  borderRadius: 1.5,
-                  "&:hover": { backgroundColor: "#1c264c" },
-                  cursor: "pointer",
-                  py: 1.2,
-                  px: 1,
-                }}
-              >
-                <ListItemIcon sx={{ color: "#a0a9c9", minWidth: 36 }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  sx={{ "& .MuiListItemText-primary": { color: "#a0a9c9", fontSize: 13, fontWeight: 500 } }}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Box>
-
-      <Box sx={{ borderTop: "1px solid #1f2a5a", pt: 3 }}>
-        <Typography
-          sx={{
-            fontSize: 11,
-            fontWeight: 700,
-            color: "#6b7280",
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-            mb: 1.5,
-            px: 1,
-          }}
-        >
-          Settings
-        </Typography>
-        <List sx={{ px: 0, mb: 2 }}>
-          {settingsItems.map((item, index) => (
-            <ListItem
-              button
-              key={index}
-              onClick={() => navigate(item.path)}
-              sx={{
-                mb: 1,
-                borderRadius: 1.5,
-                "&:hover": { backgroundColor: "#1c264c" },
-                cursor: "pointer",
-                py: 1.2,
-                px: 1,
-              }}
-            >
-              <ListItemIcon sx={{ color: "#a0a9c9", minWidth: 36 }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                sx={{ "& .MuiListItemText-primary": { color: "#a0a9c9", fontSize: 13, fontWeight: 500 } }}
-              />
-            </ListItem>
-          ))}
-        </List>
-
-       
-
-
-        <ListItem
-          button
-          onClick={() => {
-              localStorage.clear()
-              navigate("/.")
-          }}
-          sx={{
-            borderRadius: 1.5,
-            "&:hover": { backgroundColor: "#1c264c" },
-            cursor: "pointer",
-            py: 1.3,
-            px: 1,
-          }}
-        >
-          <ListItemIcon sx={{ color: "#ef4444", minWidth: 36 }}>
-            <LogoutIcon sx={{ fontSize: 21 }} />
-          </ListItemIcon>
-          <ListItemText
-            primary="Log Out"
-            sx={{ "& .MuiListItemText-primary": { color: "#ef4444", fontSize: 14, fontWeight: 500 } }}
-          />
-        </ListItem>
-      </Box>
-    </Box>
-  );
+    );
 }
 
 export default Sidebar;

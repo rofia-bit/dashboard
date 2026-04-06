@@ -7,6 +7,10 @@ import Incidents from "./presentation/pages/Incidents";
 import Sidebar from "./presentation/components/sidebar.jsx";
 import HelpSupport from "./presentation/pages/HelpSupport.jsx";
 import Settings from "./presentation/pages/Settings.jsx";
+import GuardDashboard from "./presentation/pages/guard/GuardDashboard";
+import AccessLogs     from "./presentation/pages/guard/AccessLogs";
+import QRScanner      from "./presentation/pages/guard/QRScanner";
+import GuardShifts    from "./presentation/pages/guard/GuardShifts";
 
 function App() {
   return (
@@ -21,6 +25,14 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/help" element={<HelpSupport />} />
       </Route>
+
+      <Route element={<AppLayout />}>
+                <Route path="/guard"        element={<GuardDashboard />} />
+                <Route path="/guard/logs"   element={<AccessLogs />} />
+                <Route path="/guard/qr"     element={<QRScanner />} />
+                <Route path="/guard/shifts" element={<GuardShifts />} />
+      </Route>
+
     </Routes>
   );
 }

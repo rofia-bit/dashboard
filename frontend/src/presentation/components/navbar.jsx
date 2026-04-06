@@ -1,8 +1,13 @@
-import { Box, InputBase, IconButton, Typography } from "@mui/material";
+import { Box, InputBase, IconButton, Typography, Badge } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import {useState} from "react";
+
+import { useNavigate } from "react-router-dom";
+import { useNotifications } from "../hooks/notifications/useNotifications.js";
+import NotificationPanel from "./NotificationPanel.jsx";
+import ToastNotification from "./ToastNotification.jsx";
 
 const iconStyle = {
   color: "#a0a9c9",
@@ -13,6 +18,8 @@ const iconStyle = {
 };
 
 function Navbar() {
+  const navigate = useNavigate();
+  const [panelOpen, setPanelOpen] = useState(false);
 
   const [fullName] = useState(() => {
 
@@ -21,17 +28,22 @@ function Navbar() {
     console.log("storedUser", storedUser);
 
     if (!storedUser) return "";
+        try {
+            return JSON.parse(storedUser).fullname || "";
+        } catch {
+            return "";
+        }
+    });
 
-    try {
-      const user = JSON.parse(storedUser);
-      return user.fullname || "";
-    } catch {
-      return "";
-    }
-
-  });
+    const {
+        notifications, loading,
+        unreadCount,
+        markAsRead, markAllAsRead,
+        toast, dismissToast,
+    } = useNotifications();
 
   return (
+    <>
     <Box
       display="flex"
       justifyContent="space-between"
@@ -73,15 +85,52 @@ function Navbar() {
         />
       </Box>
 
-      <Box display="flex" gap={1}>
-        <IconButton sx={iconStyle}>
-          <SettingsIcon fontSize="small" />
-        </IconButton>
-        <IconButton sx={iconStyle}>
-          <NotificationsIcon fontSize="small" />
-        </IconButton>
-      </Box>
-    </Box>
+      <Box display="flex" gap={1} sx={{ position: "relative" }}>
+
+                    <IconButton sx={iconStyle} onClick={() => navigate("/settings")}>
+                        <SettingsIcon fontSize="small" />
+                    </IconButton>
+
+                    {/* first */}
+                    <Box sx={{ position: "relative" }}>
+                        <IconButton
+                            sx={{
+                                ...iconStyle,
+                                ...(unreadCount > 0 && { color: "#fff", backgroundColor: "#2563eb",
+                                    "&:hover": { backgroundColor: "#1d4ed8" } }),
+                            }}
+                            onClick={() => setPanelOpen(prev => !prev)}
+                        >
+                            <Badge
+                                badgeContent={unreadCount}
+                                max={99}
+                                sx={{
+                                    "& .MuiBadge-badge": {
+                                        bgcolor: "#ef4444", color: "#fff",
+                                        fontSize: 10, fontWeight: 700,
+                                        minWidth: 16, height: 16, padding: "0 4px",
+                                    },
+                                }}
+                            >
+                                <NotificationsIcon fontSize="small" />
+                            </Badge>
+                        </IconButton>
+ 
+                        {panelOpen && (
+                            <NotificationPanel
+                                notifications={notifications}
+                                loading={loading}
+                                unreadCount={unreadCount}
+                                onRead={markAsRead}
+                                onReadAll={markAllAsRead}
+                                onClose={() => setPanelOpen(false)}
+                            />
+                        )}
+                    </Box>
+                </Box>
+            </Box>
+            <ToastNotification toast={toast} onDismiss={dismissToast} />
+    </>
   );
 }
 
