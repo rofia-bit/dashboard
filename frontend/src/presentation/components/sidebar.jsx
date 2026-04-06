@@ -88,8 +88,8 @@ function NavItem({ item, navigate, active }) {
 function Sidebar() {
   const navigate = useNavigate();
   const user     = JSON.parse(localStorage.getItem("user") || "{}");
-  //const menu = user.role === "SECURITY_GUARD" ? GUARD_MENU : ADMIN_MENU;
-  const menu = GUARD_MENU;
+  const menu = user.role === "SECURITY_GUARD" ? GUARD_MENU : ADMIN_MENU;
+  //const menu = GUARD_MENU;
   const [activePath, setActivePath] = useState(localStorage.getItem("activeSidebarPath") || menu.sections[0].items[0].path);
 
   const handleNavigation = (path) => {
