@@ -1,6 +1,6 @@
 export class IncidentRepositoryImpl {
 
-    #base = "http://localhost:8081";
+    #base = "https://schnapps-statue-shallot.ngrok-free.dev/";
 
     #headers() {
         const token = localStorage.getItem("token");
