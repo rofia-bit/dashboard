@@ -1,14 +1,16 @@
 /* eslint-disable no-unused-vars */
+
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import WarningIcon from "@mui/icons-material/Warning";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-//import InsightsIcon from "@mui/icons-material/Insights";
 import HelpIcon from "@mui/icons-material/Help";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 
 import { Box, List, ListItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -27,9 +29,10 @@ const ADMIN_MENU = {
             ],
         },
         {
-            label: "Reports",
+            label: "Management",
             items: [
-               // { icon: <InsightsIcon />, label: "Incidents Details", path: "/." },
+                { icon: <AssignmentOutlinedIcon />,  label: "Reports",         path: "/reports" },
+                { icon: <PeopleOutlineIcon />,       label: "Guest Requests",  path: "/guest-requests" },
             ],
         },
     ],

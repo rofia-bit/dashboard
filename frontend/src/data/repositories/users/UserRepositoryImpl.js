@@ -5,7 +5,7 @@ export class UserRepositoryImpl {
         const token = localStorage.getItem("token");
         console.log(token);
 
-        const response = await fetch("http://localhost:8081/users", {
+        const response = await fetch("https://schnapps-statue-shallot.ngrok-free.dev/users", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export class UserRepositoryImpl {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch("http://localhost:8081/users/register", {
+        const response = await fetch("https://schnapps-statue-shallot.ngrok-free.dev/users/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json" ,

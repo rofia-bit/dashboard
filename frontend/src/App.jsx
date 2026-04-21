@@ -1,12 +1,14 @@
 import { Routes, Route, Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
-import Login from "./presentation/pages/Login";
-import Dashboard from "./presentation/pages/Dashboard";
-import Edit from "./presentation/pages/Edit";
-import Incidents from "./presentation/pages/Incidents";
-import Sidebar from "./presentation/components/sidebar.jsx";
-import HelpSupport from "./presentation/pages/HelpSupport.jsx";
-import Settings from "./presentation/pages/Settings.jsx";
+import Login         from "./presentation/pages/Login";
+import Dashboard     from "./presentation/pages/Dashboard";
+import Edit          from "./presentation/pages/Edit";
+import Incidents     from "./presentation/pages/Incidents";
+import Reports       from "./presentation/pages/Reports";
+import GuestRequests from "./presentation/pages/GuestRequests";
+import Sidebar       from "./presentation/components/sidebar.jsx";
+import HelpSupport   from "./presentation/pages/HelpSupport.jsx";
+import Settings      from "./presentation/pages/Settings.jsx";
 import GuardDashboard from "./presentation/pages/guard/GuardDashboard";
 import AccessLogs     from "./presentation/pages/guard/AccessLogs";
 import QRScanner      from "./presentation/pages/guard/QRScanner";
@@ -17,13 +19,15 @@ function App() {
     <Routes>
       <Route path="/" element={<Login />} />
 
-      <Route element={<AppLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/edit" element={<Edit />} />
-        <Route path="/incidents" element={<Incidents />} />
 
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/help" element={<HelpSupport />} />
+      <Route element={<AppLayout />}>
+        <Route path="/dashboard"      element={<Dashboard />} />
+        <Route path="/edit"           element={<Edit />} />
+        <Route path="/incidents"      element={<Incidents />} />
+        <Route path="/reports"        element={<Reports />} />
+        <Route path="/guest-requests" element={<GuestRequests />} />
+        <Route path="/settings"       element={<Settings />} />
+        <Route path="/help"           element={<HelpSupport />} />
       </Route>
 
       <Route element={<AppLayout />}>

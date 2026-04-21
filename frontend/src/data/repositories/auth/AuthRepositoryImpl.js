@@ -9,7 +9,7 @@ export class AuthRepositoryImpl extends AuthRepository {
     async login(email, password) {
 
         const requestDto = new LoginRequestDto(email , password);
-        const response = await fetch("http://localhost:8081/auth/login" ,  {
+        const response = await fetch("https://schnapps-statue-shallot.ngrok-free.dev/auth/login" ,  {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -31,7 +31,7 @@ export class AuthRepositoryImpl extends AuthRepository {
 
     async getMe(token) {
 
-        const response = await fetch("http://localhost:8081/auth/me" , {
+        const response = await fetch("https://schnapps-statue-shallot.ngrok-free.dev/auth/me" , {
             method: "GET" ,
             headers :{
                 "Content-Type": "application/json" ,
