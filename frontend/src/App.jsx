@@ -1,5 +1,8 @@
-import { Routes, Route, Outlet } from "react-router-dom";
+/* eslint-disable no-unused-vars */
+import { Routes, Route, Outlet, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
+import { AnimatePresence, motion } from "framer-motion";
+
 import Login         from "./presentation/pages/Login";
 import Dashboard     from "./presentation/pages/Dashboard";
 import Edit          from "./presentation/pages/Edit";
@@ -14,44 +17,64 @@ import AccessLogs     from "./presentation/pages/guard/AccessLogs";
 import QRScanner      from "./presentation/pages/guard/QRScanner";
 import GuardShifts    from "./presentation/pages/guard/GuardShifts";
 
+const pageTransition = {
+    initial:  { opacity: 0, y: 14 },
+    animate:  { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+    exit:     { opacity: 0, y: -10, transition: { duration: 0.2, ease: "easeIn" } },
+};
+
+function AnimatedPage({ children }) {
+    return (
+        <motion.div
+            variants={pageTransition}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            style={{ flex: 1, display: "flex", flexDirection: "column" }}
+        >
+            {children}
+        </motion.div>
+    );
+}
+
 function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<Login />} />
+    const location = useLocation();
 
+    return (
+        <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+                <Route path="/" element={<Login />} />
 
-      <Route element={<AppLayout />}>
-        <Route path="/dashboard"      element={<Dashboard />} />
-        <Route path="/edit"           element={<Edit />} />
-        <Route path="/incidents"      element={<Incidents />} />
-        <Route path="/reports"        element={<Reports />} />
-        <Route path="/guest-requests" element={<GuestRequests />} />
-        <Route path="/settings"       element={<Settings />} />
-        <Route path="/help"           element={<HelpSupport />} />
-      </Route>
+                <Route element={<AppLayout />}>
+                    <Route path="/dashboard"      element={<AnimatedPage><Dashboard /></AnimatedPage>} />
+                    <Route path="/edit"           element={<AnimatedPage><Edit /></AnimatedPage>} />
+                    <Route path="/incidents"      element={<AnimatedPage><Incidents /></AnimatedPage>} />
+                    <Route path="/reports"        element={<AnimatedPage><Reports /></AnimatedPage>} />
+                    <Route path="/guest-requests" element={<AnimatedPage><GuestRequests /></AnimatedPage>} />
+                    <Route path="/settings"       element={<AnimatedPage><Settings /></AnimatedPage>} />
+                    <Route path="/help"           element={<AnimatedPage><HelpSupport /></AnimatedPage>} />
+                </Route>
 
-      <Route element={<AppLayout />}>
-                <Route path="/guard"        element={<GuardDashboard />} />
-                <Route path="/guard/logs"   element={<AccessLogs />} />
-                <Route path="/guard/qr"     element={<QRScanner />} />
-                <Route path="/guard/shifts" element={<GuardShifts />} />
-      </Route>
-
-    </Routes>
-  );
+                <Route element={<AppLayout />}>
+                    <Route path="/guard"        element={<AnimatedPage><GuardDashboard /></AnimatedPage>} />
+                    <Route path="/guard/logs"   element={<AnimatedPage><AccessLogs /></AnimatedPage>} />
+                    <Route path="/guard/qr"     element={<AnimatedPage><QRScanner /></AnimatedPage>} />
+                    <Route path="/guard/shifts" element={<AnimatedPage><GuardShifts /></AnimatedPage>} />
+                </Route>
+            </Routes>
+        </AnimatePresence>
+    );
 }
 
 function AppLayout() {
-  return (
-    <Box display="flex" bgcolor="#0f1523" minHeight="100vh">
-      <Sidebar />
-      <Box flex={1} ml="200px" display="flex" flexDirection="column">
-        <Outlet />
-      </Box>
-    </Box>
-  );
+    return (
+        <Box display="flex" bgcolor="#0f1523" minHeight="100vh">
+            <Sidebar />
+            <Box flex={1} ml="200px" display="flex" flexDirection="column">
+                <Outlet />
+            </Box>
+        </Box>
+    );
 }
-
-
 
 export default App;
