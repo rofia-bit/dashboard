@@ -11,7 +11,7 @@ import {
     LineChart, Line, Legend
 } from "recharts";
 import { useMemo, useEffect } from "react";
- 
+
 import { IncidentRepositoryImpl } from "../../data/repositories/incidents/IncidentRepositoryImpl.js";
 import { IncidentUseCase } from "../../domain/usecases/incidents/IncidentUseCase.js";
 import { UserRepositoryImpl } from "../../data/repositories/users/UserRepositoryImpl.js";
@@ -19,23 +19,24 @@ import { UserUseCase } from "../../domain/usecases/users/UserUseCase.js";
 import { useGetAllIncidents } from "../hooks/incidents/useGetAllIncidents.js";
 import { useGetUsers } from "../hooks/users/getAllUsers/useGetUsers.js";
 import { ChartCard, CustomTooltip, ChartSpinner, ChartEmpty, CHART_COLORS, STATUS_COLORS } from "../components/chartCard.jsx";
- 
 
 const incidentRepository = new IncidentRepositoryImpl();
 const incidentUseCase    = new IncidentUseCase(incidentRepository);
 const userRepository     = new UserRepositoryImpl();
 const userUseCase        = new UserUseCase(userRepository);
 
-// Shared animation variants
 const fadeUp = {
-    hidden: { opacity: 0, y: 24 },
-    show:   { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+    hidden: { opacity: 0, y: 20 },
+    show:   { opacity: 1, y: 0, transition: { duration: 0.42, ease: "easeOut" } },
 };
 
-const staggerContainer = {
+const staggerCards = {
     hidden: {},
-    show:   { transition: { staggerChildren: 0.1 } },
+    show:   { transition: { staggerChildren: 0.08 } },
 };
+
+// Residence hero image
+const HERO_IMAGE = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1800&q=80&auto=format&fit=crop";
 
 function Dashboard() {
     const { incidents, loading: incLoading } = useGetAllIncidents(incidentUseCase);
@@ -76,34 +77,115 @@ function Dashboard() {
     }, [users]);
 
     return (
-        <Box display="flex" flexDirection="column" flex={1}>
-            <Navbar />
-            <Box p={3}>
+        // marginLeft = collapsed sidebar width so content is never hidden behind it
+        <Box
+            sx={{
+                bgcolor: "#060e22",
+                minHeight: "100vh",
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
+            {/* ═══════════════════════════════════════════════
+                HERO BANNER
+            ═══════════════════════════════════════════════ */}
+            <Box
+                sx={{
+                    position: "relative",
+                    width: "100%",
+                    height: 300,
+                    overflow: "hidden",
+                    borderRadius: "0 0 20px 20px",
+                    mb: 3,
+                    flexShrink: 0,
+                }}
+            >
+                {/* Photo */}
+                <Box
+                    component="img"
+                    src={HERO_IMAGE}
+                    alt="Residence"
+                    sx={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        objectPosition: "center 55%",
+                        filter: "brightness(0.5) saturate(0.75)",
+                    }}
+                />
 
-                {/* ── Stat Cards ── */}
-                <motion.div
-                    variants={staggerContainer}
-                    initial="hidden"
-                    animate="show"
-                    style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}
+                {/* Gradient — darker bottom-left so cards are legible */}
+                <Box
+                    sx={{
+                        position: "absolute",
+                        inset: 0,
+                        background: `
+                            linear-gradient(
+                                135deg,
+                                rgba(6,14,34,0.72) 0%,
+                                rgba(6,14,34,0.1)  55%,
+                                rgba(6,14,34,0.55) 100%
+                            )
+                        `,
+                    }}
+                />
+
+                {/* Navbar — transparent, floats at top of hero */}
+                <Box sx={{ position: "relative", zIndex: 10 }}>
+                    <Navbar />
+                </Box>
+
+                {/* ── Stat cards — bottom-left of hero ── */}
+                <Box
+                    sx={{
+                        position: "absolute",
+                        bottom: 20,
+                        left: 20,
+                        right: 20,
+                        zIndex: 10,
+                    }}
                 >
-                    <Card title="Total Users"    value={usrLoading ? "…" : users.length}        index={0} />
-                    <Card title="Active Users"   value={usrLoading ? "…" : users.length}        index={1} type="active" />
-                    <Card title="Open Incidents" value={incLoading ? "…" : openIncidents}       index={2} type="inactive" />
-                    <Card title="Resolved"       value={incLoading ? "…" : resolved}            index={3} type="active" />
-                </motion.div>
+                    <motion.div
+                        variants={staggerCards}
+                        initial="hidden"
+                        animate="show"
+                        style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
+                    >
+                        <Card title="Total Users"    value={usrLoading ? "…" : users.length}   index={0} type="users"    />
+                        <Card title="Active Users"   value={usrLoading ? "…" : users.length}   index={1} type="active"   />
+                        <Card title="Open Incidents" value={incLoading ? "…" : openIncidents}  index={2} type="inactive" />
+                        <Card title="Resolved"       value={incLoading ? "…" : resolved}       index={3} type="active"   />
+                    </motion.div>
+                </Box>
+            </Box>
 
-                {/* ── Top Charts Row ── */}
-                <Grid container spacing={3} mb={3}>
+            {/* ═══════════════════════════════════════════════
+                CHARTS
+            ═══════════════════════════════════════════════ */}
+            <Box px={3} pb={4} flex={1}>
+
+                {/* Top row */}
+                <Grid container spacing={2.5} mb={2.5}>
                     <Grid item xs={12} md={5}>
-                        <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.2 }}>
+                        <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.22 }}>
                             <ChartCard title="Incidents by Status">
                                 {incLoading ? <ChartSpinner /> : (
                                     <ResponsiveContainer width="100%" height={240}>
                                         <PieChart>
-                                            <Pie data={statusData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} dataKey="value">
+                                            <Pie
+                                                data={statusData}
+                                                cx="50%" cy="50%"
+                                                innerRadius={58} outerRadius={96}
+                                                paddingAngle={3}
+                                                dataKey="value"
+                                            >
                                                 {statusData.map((entry, i) => (
-                                                    <Cell key={entry.name} fill={STATUS_COLORS[entry.name.toUpperCase()] || CHART_COLORS[i % CHART_COLORS.length]} />
+                                                    <Cell
+                                                        key={entry.name}
+                                                        fill={STATUS_COLORS[entry.name.toUpperCase()] || CHART_COLORS[i % CHART_COLORS.length]}
+                                                    />
                                                 ))}
                                             </Pie>
                                             <Tooltip content={<CustomTooltip />} />
@@ -121,7 +203,7 @@ function Dashboard() {
                                 {incLoading ? <ChartSpinner /> : (
                                     <ResponsiveContainer width="100%" height={240}>
                                         <BarChart data={categoryData} margin={{ top: 0, right: 10, left: -20, bottom: 40 }}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#2a3a6a" />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#1a2540" />
                                             <XAxis dataKey="name" tick={{ fill: "#a0a9c9", fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                                             <YAxis tick={{ fill: "#a0a9c9", fontSize: 11 }} allowDecimals={false} />
                                             <Tooltip content={<CustomTooltip />} />
@@ -136,21 +218,29 @@ function Dashboard() {
                     </Grid>
                 </Grid>
 
-                {/* ── Bottom Charts Row ── */}
-                <Grid container spacing={3}>
+                {/* Bottom row */}
+                <Grid container spacing={2.5}>
                     <Grid item xs={12} md={7}>
-                        <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.4 }}>
+                        <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.38 }}>
                             <ChartCard title="Incident Reports — Last 14 Days" minH={200}>
                                 {incLoading ? <ChartSpinner /> : timelineData.length === 0
                                     ? <ChartEmpty message="No timeline data" />
                                     : (
                                         <ResponsiveContainer width="100%" height={200}>
                                             <LineChart data={timelineData} margin={{ top: 0, right: 10, left: -20, bottom: 0 }}>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#2a3a6a" />
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#1a2540" />
                                                 <XAxis dataKey="date" tick={{ fill: "#a0a9c9", fontSize: 11 }} />
                                                 <YAxis tick={{ fill: "#a0a9c9", fontSize: 11 }} allowDecimals={false} />
                                                 <Tooltip content={<CustomTooltip />} />
-                                                <Line type="monotone" dataKey="count" name="Incidents" stroke="#2563eb" strokeWidth={2} dot={{ fill: "#2563eb", r: 3 }} activeDot={{ r: 5 }} />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="count"
+                                                    name="Incidents"
+                                                    stroke="#2563eb"
+                                                    strokeWidth={2}
+                                                    dot={{ fill: "#2563eb", r: 3 }}
+                                                    activeDot={{ r: 5 }}
+                                                />
                                             </LineChart>
                                         </ResponsiveContainer>
                                     )}
@@ -159,12 +249,12 @@ function Dashboard() {
                     </Grid>
 
                     <Grid item xs={12} md={5}>
-                        <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.5 }}>
+                        <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.46 }}>
                             <ChartCard title="Users by Role" minH={200}>
                                 {usrLoading ? <ChartSpinner /> : (
                                     <ResponsiveContainer width="100%" height={200}>
                                         <BarChart data={roleData} layout="vertical" margin={{ top: 0, right: 10, left: 20, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#2a3a6a" horizontal={false} />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#1a2540" horizontal={false} />
                                             <XAxis type="number" tick={{ fill: "#a0a9c9", fontSize: 11 }} allowDecimals={false} />
                                             <YAxis type="category" dataKey="name" tick={{ fill: "#a0a9c9", fontSize: 11 }} width={110} />
                                             <Tooltip content={<CustomTooltip />} />
@@ -178,7 +268,6 @@ function Dashboard() {
                         </motion.div>
                     </Grid>
                 </Grid>
-
             </Box>
         </Box>
     );
