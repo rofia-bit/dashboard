@@ -68,9 +68,9 @@ function App() {
 
 function AppLayout() {
     return (
-        <Box display="flex" bgcolor="#0f1523" minHeight="100vh">
+        <Box display="flex" bgcolor="#060e22" minHeight="100vh">
             <Sidebar />
-            <Box flex={1} ml="200px" display="flex" flexDirection="column">
+            <Box flex={1} ml="64px" display="flex" flexDirection="column">
                 <Outlet />
             </Box>
         </Box>

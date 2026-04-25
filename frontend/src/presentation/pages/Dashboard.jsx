@@ -19,6 +19,8 @@ import { UserUseCase } from "../../domain/usecases/users/UserUseCase.js";
 import { useGetAllIncidents } from "../hooks/incidents/useGetAllIncidents.js";
 import { useGetUsers } from "../hooks/users/getAllUsers/useGetUsers.js";
 import { ChartCard, CustomTooltip, ChartSpinner, ChartEmpty, CHART_COLORS, STATUS_COLORS } from "../components/chartCard.jsx";
+import heroImage from "../../assets/hero.png";
+
 
 const incidentRepository = new IncidentRepositoryImpl();
 const incidentUseCase    = new IncidentUseCase(incidentRepository);
@@ -35,8 +37,8 @@ const staggerCards = {
     show:   { transition: { staggerChildren: 0.08 } },
 };
 
-// Residence hero image
-const HERO_IMAGE = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1800&q=80&auto=format&fit=crop";
+
+const HERO_IMAGE = heroImage;
 
 function Dashboard() {
     const { incidents, loading: incLoading } = useGetAllIncidents(incidentUseCase);
@@ -77,7 +79,7 @@ function Dashboard() {
     }, [users]);
 
     return (
-        // marginLeft = collapsed sidebar width so content is never hidden behind it
+        
         <Box
             sx={{
                 bgcolor: "#060e22",
@@ -86,9 +88,7 @@ function Dashboard() {
                 flexDirection: "column",
             }}
         >
-            {/* ═══════════════════════════════════════════════
-                HERO BANNER
-            ═══════════════════════════════════════════════ */}
+
             <Box
                 sx={{
                     position: "relative",
@@ -100,7 +100,7 @@ function Dashboard() {
                     flexShrink: 0,
                 }}
             >
-                {/* Photo */}
+
                 <Box
                     component="img"
                     src={HERO_IMAGE}
@@ -115,8 +115,6 @@ function Dashboard() {
                         filter: "brightness(0.5) saturate(0.75)",
                     }}
                 />
-
-                {/* Gradient — darker bottom-left so cards are legible */}
                 <Box
                     sx={{
                         position: "absolute",
@@ -126,18 +124,18 @@ function Dashboard() {
                                 135deg,
                                 rgba(6,14,34,0.72) 0%,
                                 rgba(6,14,34,0.1)  55%,
-                                rgba(6,14,34,0.55) 100%
+                                rgba(6,14,34,0.55) 80%
                             )
                         `,
                     }}
                 />
 
-                {/* Navbar — transparent, floats at top of hero */}
+
                 <Box sx={{ position: "relative", zIndex: 10 }}>
                     <Navbar />
                 </Box>
 
-                {/* ── Stat cards — bottom-left of hero ── */}
+
                 <Box
                     sx={{
                         position: "absolute",

@@ -2,134 +2,197 @@ import { Box, InputBase, IconButton, Typography, Badge } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
-import {useState} from "react";
-
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "../hooks/notifications/useNotifications.js";
 import NotificationPanel from "./NotificationPanel.jsx";
 import ToastNotification from "./ToastNotification.jsx";
 
-const iconStyle = {
-  color: "#a0a9c9",
-  backgroundColor: "#1f2a5a",
-  "&:hover": { backgroundColor: "#2a3a6a" },
-  width: 40,
-  height: 40,
-};
-
 function Navbar() {
   const navigate = useNavigate();
   const [panelOpen, setPanelOpen] = useState(false);
 
-  const [fullName] = useState(() => {
-
+  const [userData] = useState(() => {
     const storedUser = localStorage.getItem("user");
+    if (!storedUser) return { fullname: "", role: "" };
+    try {
+      return JSON.parse(storedUser) || {};
+    } catch {
+      return {};
+    }
+  });
 
-    console.log("storedUser", storedUser);
+  const isGuard = userData.role === "SECURITY_GUARD";
+  const dashTitle = isGuard ? "Guard Dashboard" : "Admin Dashboard";
 
-    if (!storedUser) return "";
-        try {
-            return JSON.parse(storedUser).fullname || "";
-        } catch {
-            return "";
-        }
-    });
-
-    const {
-        notifications, loading,
-        unreadCount,
-        markAsRead, markAllAsRead,
-        toast, dismissToast,
-    } = useNotifications();
+  const {
+    notifications, loading,
+    unreadCount,
+    markAsRead, markAllAsRead,
+    toast, dismissToast,
+  } = useNotifications();
 
   return (
     <>
-    <Box
-      display="flex"
-      justifyContent="space-between"
-      alignItems="center"
-      p={2}
-      bgcolor="#0f1523"
-      borderBottom="1px solid #1f2a5a"
-      flexWrap="wrap"
-      gap={2}
-    >
-      <Box display="flex" flexDirection="column" gap={0.5}>
-        <Typography sx={{ color: "#fff", fontWeight: 600, fontSize: 16 }}>
-          Welcome!
-        </Typography>
-        <Typography sx={{ color: "#a0a9c9", fontSize: 12 }}>
-          {fullName ? `Logged in as ${fullName}` : "Loading..."}
-        </Typography>
-      </Box>
-
       <Box
         display="flex"
+        justifyContent="space-between"
         alignItems="center"
-        bgcolor="#1f2a5a"
-        borderRadius={2}
-        px={2}
-        py={1}
-        flex={1}
-        maxWidth={350}
+        px={3}
+        py={1.8}
+        sx={{
+          backgroundColor: "transparent",
+          position: "relative",
+          zIndex: 10,
+        }}
       >
-        <SearchIcon sx={{ color: "#6b7280", mr: 1 }} />
-        <InputBase
-          placeholder="Search Here"
+        {/* Title */}
+        <Box display="flex" flexDirection="column" gap={0.3}>
+          <Typography
+            sx={{
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 17,
+              letterSpacing: 0.3,
+              textShadow: "0 1px 8px rgba(0,0,0,0.6)",
+            }}
+          >
+            {dashTitle}
+          </Typography>
+          <Typography
+            sx={{
+              color: "rgba(255,255,255,0.65)",
+              fontSize: 12,
+              fontWeight: 400,
+              textShadow: "0 1px 6px rgba(0,0,0,0.5)",
+            }}
+          >
+            {userData.fullname ? `Logged in as ${userData.fullname}` : "Loading..."}
+          </Typography>
+        </Box>
+
+        {/* searcg */}
+        <Box
+          display="flex"
+          alignItems="center"
           sx={{
+            bgcolor: "rgba(255,255,255,0.08)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: "12px",
+            px: 2,
+            py: 0.9,
             flex: 1,
-            color: "#fff",
-            fontSize: 14,
-            "& input::placeholder": { color: "#6b7280", opacity: 1 },
+            maxWidth: 380,
+            mx: 4,
+            transition: "all 0.2s ease",
+            "&:focus-within": {
+              bgcolor: "rgba(255,255,255,0.13)",
+            },
           }}
-        />
+        >
+          <SearchIcon sx={{ color: "rgba(255,255,255,0.45)", mr: 1, fontSize: 18 }} />
+          <InputBase
+            placeholder="Search here…"
+            sx={{
+              flex: 1,
+              color: "#fff",
+              fontSize: 13,
+              "& input::placeholder": { color: "rgba(255,255,255,0.4)", opacity: 1 },
+            }}
+          />
+          <Typography
+            sx={{
+              color: "rgba(255,255,255,0.3)",
+              fontSize: 11,
+              fontFamily: "monospace",
+              border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: "5px",
+              px: 0.8,
+              py: 0.2,
+              lineHeight: 1.4,
+            }}
+          >
+            (●'◡'●)
+          </Typography>
+        </Box>
+
+        {/* right*/}
+        <Box display="flex" gap={1} sx={{ position: "relative" }}>
+          <IconButton
+            onClick={() => navigate("/settings")}
+            sx={{
+              color: "rgba(255,255,255,0.7)",
+              bgcolor: "rgba(255,255,255,0.08)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              width: 38,
+              height: 38,
+              "&:hover": {
+                bgcolor: "rgba(255,255,255,0.14)",
+                color: "#fff",
+              },
+              transition: "all 0.2s ease",
+            }}
+          >
+            <SettingsIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+
+          <Box sx={{ position: "relative" }}>
+            <IconButton
+              onClick={() => setPanelOpen((prev) => !prev)}
+              sx={{
+                color: unreadCount > 0 ? "#fff" : "rgba(255,255,255,0.7)",
+                bgcolor: unreadCount > 0
+                  ? "rgba(37,99,235,0.55)"
+                  : "rgba(255,255,255,0.08)",
+                backdropFilter: "blur(8px)",
+                border: `1px solid ${unreadCount > 0 ? "rgba(37,99,235,0.6)" : "rgba(255,255,255,0.12)"}`,
+                width: 38,
+                height: 38,
+                "&:hover": {
+                  bgcolor: unreadCount > 0
+                    ? "rgba(37,99,235,0.7)"
+                    : "rgba(255,255,255,0.14)",
+                  color: "#fff",
+                },
+                transition: "all 0.2s ease",
+              }}
+            >
+              <Badge
+                badgeContent={unreadCount}
+                max={99}
+                sx={{
+                  "& .MuiBadge-badge": {
+                    bgcolor: "#ef4444",
+                    color: "#fff",
+                    fontSize: 9,
+                    fontWeight: 700,
+                    minWidth: 15,
+                    height: 15,
+                    padding: "0 3px",
+                  },
+                }}
+              >
+                <NotificationsIcon sx={{ fontSize: 18 }} />
+              </Badge>
+            </IconButton>
+
+            {panelOpen && (
+              <NotificationPanel
+                notifications={notifications}
+                loading={loading}
+                unreadCount={unreadCount}
+                onRead={markAsRead}
+                onReadAll={markAllAsRead}
+                onClose={() => setPanelOpen(false)}
+              />
+            )}
+          </Box>
+        </Box>
       </Box>
 
-      <Box display="flex" gap={1} sx={{ position: "relative" }}>
-
-                    <IconButton sx={iconStyle} onClick={() => navigate("/settings")}>
-                        <SettingsIcon fontSize="small" />
-                    </IconButton>
-
-                    {/* first */}
-                    <Box sx={{ position: "relative" }}>
-                        <IconButton
-                            sx={{
-                                ...iconStyle,
-                                ...(unreadCount > 0 && { color: "#fff", backgroundColor: "#2563eb",
-                                    "&:hover": { backgroundColor: "#1d4ed8" } }),
-                            }}
-                            onClick={() => setPanelOpen(prev => !prev)}
-                        >
-                            <Badge
-                                badgeContent={unreadCount}
-                                max={99}
-                                sx={{
-                                    "& .MuiBadge-badge": {
-                                        bgcolor: "#ef4444", color: "#fff",
-                                        fontSize: 10, fontWeight: 700,
-                                        minWidth: 16, height: 16, padding: "0 4px",
-                                    },
-                                }}
-                            >
-                                <NotificationsIcon fontSize="small" />
-                            </Badge>
-                        </IconButton>
- 
-                        {panelOpen && (
-                            <NotificationPanel
-                                notifications={notifications}
-                                loading={loading}
-                                unreadCount={unreadCount}
-                                onRead={markAsRead}
-                                onReadAll={markAllAsRead}
-                                onClose={() => setPanelOpen(false)}
-                            />
-                        )}
-                    </Box>
-                </Box>
-            </Box>
-            <ToastNotification toast={toast} onDismiss={dismissToast} />
+      <ToastNotification toast={toast} onDismiss={dismissToast} />
     </>
   );
 }

@@ -33,46 +33,74 @@ function NotificationItem({ notification, onRead }) {
         <Box
             onClick={() => !notification.read && onRead(notification.notificationId)}
             sx={{
-                px: 2.5, py: 1.5,
+                px: 2,
+                py: 1.4,
                 cursor: notification.read ? "default" : "pointer",
-                bgcolor: notification.read ? "transparent" : `${accent}08`,
-                borderLeft: emergency ? `3px solid #ef4444` : "3px solid transparent",
-                "&:hover": { bgcolor: "#1f2e55" },
+                bgcolor: notification.read ? "transparent" : `${accent}09`,
+                borderLeft: `2px solid ${emergency ? "#ef4444" : notification.read ? "transparent" : "#2563eb35"}`,
                 transition: "background 0.15s",
+                "&:hover": {
+                    bgcolor: "rgba(255,255,255,0.05)",
+                },
             }}
         >
             <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                <Box sx={{
-                    width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-                    bgcolor: `${accent}20`, display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
+
+                <Box
+                    sx={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: "9px",
+                        flexShrink: 0,
+                        bgcolor: `${accent}15`,
+                        border: `1px solid ${accent}28`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
                     {emergency
-                        ? <WarningAmberIcon sx={{ fontSize: 16, color: "#ef4444" }} />
-                        : <NotificationsNoneIcon sx={{ fontSize: 16, color: "#2563eb" }} />
+                        ? <WarningAmberIcon sx={{ fontSize: 15, color: "#ef4444" }} />
+                        : <NotificationsNoneIcon sx={{ fontSize: 15, color: "#2563eb" }} />
                     }
                 </Box>
+
+
                 <Box flex={1} minWidth={0}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.3}>
-                        <Typography sx={{
-                            fontSize: 12, fontWeight: notification.read ? 400 : 600,
-                            color: emergency ? "#ef4444" : "#e2e8f0",
-                        }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.25}>
+                        <Typography
+                            sx={{
+                                fontSize: 11.5,
+                                fontWeight: notification.read ? 400 : 600,
+                                color: emergency ? "#ef4444" : "rgba(255,255,255,0.85)",
+                                letterSpacing: 0.1,
+                            }}
+                        >
                             {emergency ? "Emergency Alert" : "Notification"}
                         </Typography>
-                        <Typography sx={{ fontSize: 10, color: "#6b7280", flexShrink: 0, ml: 1 }}>
+                        <Typography sx={{ fontSize: 10, color: "rgba(255,255,255,0.3)", flexShrink: 0, ml: 1 }}>
                             {fmtTime(notification.createdAt)}
                         </Typography>
                     </Stack>
-                    <Typography sx={{
-                        fontSize: 12, color: "#a0a9c9", lineHeight: 1.5,
-                        overflow: "hidden", textOverflow: "ellipsis",
-                        display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
-                    }}>
+                    <Typography
+                        sx={{
+                            fontSize: 11.5,
+                            color: "rgba(255,255,255,0.45)",
+                            lineHeight: 1.5,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                        }}
+                    >
                         {notification.content}
                     </Typography>
                 </Box>
+
+
                 {!notification.read && (
-                    <FiberManualRecordIcon sx={{ fontSize: 8, color: accent, flexShrink: 0, mt: 0.5 }} />
+                    <FiberManualRecordIcon sx={{ fontSize: 7, color: accent, flexShrink: 0, mt: 0.6 }} />
                 )}
             </Stack>
         </Box>
@@ -80,75 +108,160 @@ function NotificationItem({ notification, onRead }) {
 }
 
 
-//----
-
-
 export default function NotificationPanel({ notifications, loading, unreadCount, onRead, onReadAll, onClose }) {
     return (
         <ClickAwayListener onClickAway={onClose}>
-            <Box sx={{
-                position: "absolute",
-                top: "calc(100% + 8px)",
-                right: 0,
-                width: 340,
-                bgcolor: "#1a2444",
-                border: "1px solid #2a3a6a",
-                borderRadius: 2,
-                boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-                zIndex: 1200,
-                overflow: "hidden",
-            }}>
-                {/* header */}
-                <Stack direction="row" justifyContent="space-between" alignItems="center" px={2.5} py={2}>
+            <Box
+                sx={{
+                    position: "absolute",
+                    top: "calc(100% + 10px)",
+                    right: 0,
+                    width: 320,
+
+                    bgcolor: "rgba(6, 14, 34, 0.82)",
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                    border: "1px solid rgba(255,255,255,0.09)",
+                    borderRadius: "16px",
+                    boxShadow: "0 16px 48px rgba(0,0,0,0.55)",
+                    zIndex: 1300,
+                    overflow: "hidden",
+                }}
+            >
+
+                <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    px={2}
+                    py={1.6}
+                >
                     <Stack direction="row" spacing={1} alignItems="center">
-                        <NotificationsIcon sx={{ color: "#2563eb", fontSize: 18 }} />
-                        <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>
+                        <Box
+                            sx={{
+                                width: 28,
+                                height: 28,
+                                borderRadius: "8px",
+                                bgcolor: "rgba(37,99,235,0.15)",
+                                border: "1px solid rgba(37,99,235,0.25)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <NotificationsIcon sx={{ color: "#2563eb", fontSize: 15 }} />
+                        </Box>
+                        <Typography sx={{ color: "rgba(255,255,255,0.9)", fontWeight: 600, fontSize: 13 }}>
                             Notifications
                         </Typography>
                         {unreadCount > 0 && (
-                            <Box sx={{
-                                bgcolor: "#ef4444", color: "#fff", borderRadius: 10,
-                                fontSize: 10, fontWeight: 700, px: 0.8, py: 0.1, lineHeight: 1.6,
-                            }}>
+                            <Box
+                                sx={{
+                                    bgcolor: "#ef4444",
+                                    color: "#fff",
+                                    borderRadius: "6px",
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                    px: 0.7,
+                                    py: 0.1,
+                                    lineHeight: 1.7,
+                                    minWidth: 18,
+                                    textAlign: "center",
+                                }}
+                            >
                                 {unreadCount}
                             </Box>
                         )}
                     </Stack>
+
                     {unreadCount > 0 && (
                         <Tooltip title="Mark all as read">
-                            <IconButton size="small" onClick={onReadAll}
-                                sx={{ color: "#6b7280", "&:hover": { color: "#2563eb" } }}>
-                                <DoneAllIcon fontSize="small" />
+                            <IconButton
+                                size="small"
+                                onClick={onReadAll}
+                                sx={{
+                                    color: "rgba(255,255,255,0.3)",
+                                    "&:hover": { color: "#2563eb", bgcolor: "rgba(37,99,235,0.1)" },
+                                    borderRadius: "8px",
+                                    transition: "all 0.15s ease",
+                                }}
+                            >
+                                <DoneAllIcon sx={{ fontSize: 16 }} />
                             </IconButton>
                         </Tooltip>
                     )}
                 </Stack>
 
-                <Divider sx={{ borderColor: "#2a3a6a" }} />
 
-                {/* body */}
-                <Box sx={{ maxHeight: 380, overflowY: "auto",
-                    "&::-webkit-scrollbar": { width: 4 },
-                    "&::-webkit-scrollbar-thumb": { bgcolor: "#2a3a6a", borderRadius: 2 },
-                }}>
+                <Box sx={{ height: "1px", bgcolor: "rgba(255,255,255,0.07)", mx: 2 }} />
+
+
+                <Box
+                    sx={{
+                        maxHeight: 360,
+                        overflowY: "auto",
+                        "&::-webkit-scrollbar": { width: "3px" },
+                        "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(255,255,255,0.1)", borderRadius: 2 },
+                    }}
+                >
                     {loading ? (
                         <Box display="flex" justifyContent="center" py={4}>
-                            <CircularProgress size={24} sx={{ color: "#2563eb" }} />
+                            <CircularProgress size={22} sx={{ color: "#2563eb" }} />
                         </Box>
                     ) : notifications.length === 0 ? (
                         <Box py={5} textAlign="center">
-                            <NotificationsNoneIcon sx={{ color: "#2a3a6a", fontSize: 36, mb: 1 }} />
-                            <Typography sx={{ color: "#6b7280", fontSize: 13 }}>No notifications yet</Typography>
+                            <Box
+                                sx={{
+                                    width: 44,
+                                    height: 44,
+                                    borderRadius: "12px",
+                                    bgcolor: "rgba(255,255,255,0.05)",
+                                    border: "1px solid rgba(255,255,255,0.08)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    mx: "auto",
+                                    mb: 1.5,
+                                }}
+                            >
+                                <NotificationsNoneIcon sx={{ color: "rgba(255,255,255,0.2)", fontSize: 22 }} />
+                            </Box>
+                            <Typography sx={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
+                                No notifications yet
+                            </Typography>
                         </Box>
                     ) : (
                         notifications.map((n, i) => (
                             <Box key={n.notificationId}>
                                 <NotificationItem notification={n} onRead={onRead} />
-                                {i < notifications.length - 1 && <Divider sx={{ borderColor: "#2a3a6a20" }} />}
+                                {i < notifications.length - 1 && (
+                                    <Box sx={{ height: "1px", bgcolor: "rgba(255,255,255,0.05)", mx: 2 }} />
+                                )}
                             </Box>
                         ))
                     )}
                 </Box>
+
+
+                {notifications.length > 0 && (
+                    <>
+                        <Box sx={{ height: "1px", bgcolor: "rgba(255,255,255,0.07)", mx: 2 }} />
+                        <Box px={2} py={1.2} textAlign="center">
+                            <Typography
+                                sx={{
+                                    fontSize: 11,
+                                    color: "rgba(37,99,235,0.7)",
+                                    cursor: "pointer",
+                                    "&:hover": { color: "#2563eb" },
+                                    transition: "color 0.15s ease",
+                                    fontWeight: 500,
+                                }}
+                            >
+                                View all notifications
+                            </Typography>
+                        </Box>
+                    </>
+                )}
             </Box>
         </ClickAwayListener>
     );
