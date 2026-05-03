@@ -12,6 +12,8 @@ import GuestRequests from "./presentation/pages/GuestRequests";
 import Sidebar       from "./presentation/components/sidebar.jsx";
 import HelpSupport   from "./presentation/pages/HelpSupport.jsx";
 import Settings      from "./presentation/pages/Settings.jsx";
+import Shifts        from "./presentation/pages/Shifts.jsx";
+import Facilities    from "./presentation/pages/Facilities.jsx";
 import GuardDashboard from "./presentation/pages/guard/GuardDashboard";
 import AccessLogs     from "./presentation/pages/guard/AccessLogs";
 import QRScanner      from "./presentation/pages/guard/QRScanner";
@@ -53,6 +55,8 @@ function App() {
                     <Route path="/guest-requests" element={<AnimatedPage><GuestRequests /></AnimatedPage>} />
                     <Route path="/settings"       element={<AnimatedPage><Settings /></AnimatedPage>} />
                     <Route path="/help"           element={<AnimatedPage><HelpSupport /></AnimatedPage>} />
+                    <Route path="/shifts"         element={<AnimatedPage><Shifts /></AnimatedPage>} />
+                    <Route path="/facilities"     element={<AnimatedPage><Facilities /></AnimatedPage>} />
                 </Route>
 
                 <Route element={<AppLayout />}>

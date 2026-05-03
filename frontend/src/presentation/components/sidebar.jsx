@@ -11,6 +11,8 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+import BusinessIcon from "@mui/icons-material/Business";
+import ScheduleIcon from "@mui/icons-material/Schedule";
 
 import { Box, List, ListItem, ListItemIcon, Tooltip, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -37,6 +39,8 @@ const ADMIN_MENU = {
       items: [
         { icon: <AssignmentOutlinedIcon sx={{ fontSize: 20 }} />, label: "Reports",        path: "/reports" },
         { icon: <PeopleOutlineIcon sx={{ fontSize: 20 }} />,      label: "Guest Requests", path: "/guest-requests" },
+        { icon: <ScheduleIcon sx={{ fontSize: 20 }} />,           label: "Shifts",         path: "/shifts" },
+        { icon: <BusinessIcon sx={{ fontSize: 20 }} />,           label: "Facilities",     path: "/facilities" },
       ],
     },
   ],
