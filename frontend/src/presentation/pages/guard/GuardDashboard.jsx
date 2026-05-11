@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Box, Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import Navbar from "../../components/navbar.jsx";
 import Card from "../../components/card.jsx";
 import {
@@ -39,8 +39,6 @@ function GuardDashboard() {
             { name: "Upcoming", value: upcoming },
             { name: "Ended",    value: ended },
         ].filter(d => d.value > 0);
-
-        
     }, [shifts, now]);
 
     const shiftsByDay = useMemo(() => {
@@ -69,105 +67,115 @@ function GuardDashboard() {
         return Object.entries(counts).map(([name, value]) => ({ name, value }));
     }, [logs]);
 
-    return (
-        <Box display="flex" flexDirection="column" flex={1}>
-            <Navbar />
-            <Box p={3}>
+    const axisColor = "var(--text-secondary)";
+    const gridColor = "var(--chart-grid)";
 
-                <Box display="flex" gap={2} flexWrap="wrap" mb={3}>
-                    <Card title="Active Shifts" value={shiftsLoading ? "…" : activeShifts} type="active" />
-                    <Card title="Total Shifts"  value={shiftsLoading ? "…" : shifts.length} />
-                    <Card title="Logs Today"    value={logsLoading   ? "…" : todayLogs}     type="active" />
-                    <Card title="Total Logs"    value={logsLoading   ? "…" : logs.length} />
+    return (
+        <Box sx={{
+            bgcolor: "var(--bg-base)",
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            transition: "background-color 0.3s ease",
+            width: "100%",
+        }}>
+            <Navbar />
+
+            <Box sx={{ px: 3, pb: 4, flex: 1, display: "flex", flexDirection: "column", gap: 3, mt: 2 }}>
+
+                {/* Stat cards */}
+                <Box display="flex" gap={2} flexWrap="wrap">
+                    <Card title="Active Shifts" value={shiftsLoading ? "…" : activeShifts} type="active"   />
+                    <Card title="Total Shifts"  value={shiftsLoading ? "…" : shifts.length}               />
+                    <Card title="Logs Today"    value={logsLoading   ? "…" : todayLogs}     type="active"   />
+                    <Card title="Total Logs"    value={logsLoading   ? "…" : logs.length}                  />
                 </Box>
 
-                {/* row 1: shift status + shifts by day */}
-                <Grid container spacing={3} mb={3}>
-                    <Grid item xs={12} md={4}>
-                        <ChartCard title="My Shifts by Status">
-                            {shiftsLoading ? <ChartSpinner /> : shiftStatusData.length === 0
-                                ? <ChartEmpty message="No shift data" />
-                                : (
-                                    <ResponsiveContainer width="100%" height={220}>
-                                        <PieChart>
-                                            <Pie data={shiftStatusData} cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3} dataKey="value">
-                                                {shiftStatusData.map(entry => (
-                                                    <Cell key={entry.name} fill={SHIFT_STATUS_COLORS[entry.name]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip content={<CustomTooltip />} />
-                                            <Legend formatter={v => <span style={{ color: "#a0a9c9", fontSize: 12 }}>{v}</span>} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                )}
-                        </ChartCard>
-                    </Grid>
-
-                    <Grid item xs={12} md={8}>
-                        <ChartCard title="Shifts per Day of Week">
-                            {shiftsLoading ? <ChartSpinner /> : (
-                                <ResponsiveContainer width="100%" height={220}>
-                                    <BarChart data={shiftsByDay} margin={{ top: 0, right: 10, left: -20, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#2a3a6a" />
-                                        <XAxis dataKey="day" tick={{ fill: "#a0a9c9", fontSize: 12 }} />
-                                        <YAxis tick={{ fill: "#a0a9c9", fontSize: 11 }} allowDecimals={false} />
+                {/* Row 1: pie (33%) | bar (67%) */}
+                <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 3, width: "100%" }}>
+                    <ChartCard title="My Shifts by Status" minH={260}>
+                        {shiftsLoading ? <ChartSpinner /> : shiftStatusData.length === 0
+                            ? <ChartEmpty message="No shift data" />
+                            : (
+                                <ResponsiveContainer width="100%" height={260}>
+                                    <PieChart>
+                                        <Pie data={shiftStatusData} cx="50%" cy="50%"
+                                            innerRadius={65} outerRadius={105}
+                                            paddingAngle={3} dataKey="value">
+                                            {shiftStatusData.map(entry => (
+                                                <Cell key={entry.name} fill={SHIFT_STATUS_COLORS[entry.name]} />
+                                            ))}
+                                        </Pie>
                                         <Tooltip content={<CustomTooltip />} />
-                                        <Bar dataKey="shifts" name="Shifts" radius={[4, 4, 0, 0]}>
-                                            {shiftsByDay.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                                        </Bar>
-                                    </BarChart>
+                                        <Legend formatter={v => <span style={{ color: axisColor, fontSize: 12 }}>{v}</span>} />
+                                    </PieChart>
                                 </ResponsiveContainer>
                             )}
-                        </ChartCard>
-                    </Grid>
-                </Grid>
+                    </ChartCard>
 
-                {/* row 2: logs timeline + logs by role */}
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={7}>
-                        <ChartCard title="Access Logs — Last 14 Days" minH={200}>
-                            {logsLoading ? <ChartSpinner /> : logsTimeline.length === 0
-                                ? <ChartEmpty message="No log data" />
-                                : (
-                                    <ResponsiveContainer width="100%" height={200}>
-                                        <AreaChart data={logsTimeline} margin={{ top: 0, right: 10, left: -20, bottom: 0 }}>
-                                            <defs>
-                                                <linearGradient id="logGrad" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%"  stopColor="#2563eb" stopOpacity={0.3} />
-                                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#2a3a6a" />
-                                            <XAxis dataKey="date" tick={{ fill: "#a0a9c9", fontSize: 11 }} />
-                                            <YAxis tick={{ fill: "#a0a9c9", fontSize: 11 }} allowDecimals={false} />
-                                            <Tooltip content={<CustomTooltip />} />
-                                            <Area type="monotone" dataKey="count" name="Logs" stroke="#2563eb" strokeWidth={2} fill="url(#logGrad)" dot={{ fill: "#2563eb", r: 3 }} />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                )}
-                        </ChartCard>
-                    </Grid>
+                    <ChartCard title="Shifts per Day of Week" minH={260}>
+                        {shiftsLoading ? <ChartSpinner /> : (
+                            <ResponsiveContainer width="100%" height={260}>
+                                <BarChart data={shiftsByDay} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                                    <XAxis dataKey="day" tick={{ fill: axisColor, fontSize: 12 }} />
+                                    <YAxis tick={{ fill: axisColor, fontSize: 11 }} allowDecimals={false} />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Bar dataKey="shifts" name="Shifts" radius={[4, 4, 0, 0]}>
+                                        {shiftsByDay.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        )}
+                    </ChartCard>
+                </Box>
 
-                    <Grid item xs={12} md={5}>
-                        <ChartCard title="Logs by Role" minH={200}>
-                            {logsLoading ? <ChartSpinner /> : logsByRole.length === 0
-                                ? <ChartEmpty message="No log data" />
-                                : (
-                                    <ResponsiveContainer width="100%" height={200}>
-                                        <PieChart>
-                                            <Pie data={logsByRole} cx="50%" cy="50%" outerRadius={80} dataKey="value">
-                                                {logsByRole.map(entry => (
-                                                    <Cell key={entry.name} fill={ROLE_COLORS[entry.name] || "#6b7280"} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip content={<CustomTooltip />} />
-                                            <Legend formatter={v => <span style={{ color: "#a0a9c9", fontSize: 11 }}>{v}</span>} />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                )}
-                        </ChartCard>
-                    </Grid>
-                </Grid>
+                {/* Row 2: area (67%) | pie (33%) */}
+                <Box sx={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 3, width: "100%" }}>
+                    <ChartCard title="Access Logs — Last 14 Days" minH={260}>
+                        {logsLoading ? <ChartSpinner /> : logsTimeline.length === 0
+                            ? <ChartEmpty message="No log data" />
+                            : (
+                                <ResponsiveContainer width="100%" height={260}>
+                                    <AreaChart data={logsTimeline} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="logGrad" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%"  stopColor="#2563eb" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                                        <XAxis dataKey="date" tick={{ fill: axisColor, fontSize: 11 }} />
+                                        <YAxis tick={{ fill: axisColor, fontSize: 11 }} allowDecimals={false} />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Area type="monotone" dataKey="count" name="Logs"
+                                            stroke="#2563eb" strokeWidth={2}
+                                            fill="url(#logGrad)"
+                                            dot={{ fill: "#2563eb", r: 3 }} />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            )}
+                    </ChartCard>
+
+                    <ChartCard title="Logs by Role" minH={260}>
+                        {logsLoading ? <ChartSpinner /> : logsByRole.length === 0
+                            ? <ChartEmpty message="No log data" />
+                            : (
+                                <ResponsiveContainer width="100%" height={260}>
+                                    <PieChart>
+                                        <Pie data={logsByRole} cx="50%" cy="50%"
+                                            outerRadius={95} dataKey="value">
+                                            {logsByRole.map(entry => (
+                                                <Cell key={entry.name} fill={ROLE_COLORS[entry.name] || "#6b7280"} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend formatter={v => <span style={{ color: axisColor, fontSize: 11 }}>{v}</span>} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            )}
+                    </ChartCard>
+                </Box>
             </Box>
         </Box>
     );
