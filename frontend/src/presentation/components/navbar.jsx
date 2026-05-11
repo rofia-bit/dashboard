@@ -2,15 +2,19 @@ import { Box, InputBase, IconButton, Typography, Badge } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "../hooks/notifications/useNotifications.js";
 import NotificationPanel from "./NotificationPanel.jsx";
 import ToastNotification from "./ToastNotification.jsx";
+import { useTheme } from "../context/ThemeContext.jsx";
 
 function Navbar() {
   const navigate = useNavigate();
   const [panelOpen, setPanelOpen] = useState(false);
+  const { isDark, toggle } = useTheme();
 
   const [userData] = useState(() => {
     const storedUser = localStorage.getItem("user");
@@ -71,7 +75,7 @@ function Navbar() {
           </Typography>
         </Box>
 
-        {/* searcg */}
+        {/* Search */}
         <Box
           display="flex"
           alignItems="center"
@@ -117,8 +121,33 @@ function Navbar() {
           </Typography>
         </Box>
 
-        {/* right*/}
+        {/* Right */}
         <Box display="flex" gap={1} sx={{ position: "relative" }}>
+
+          {/* Theme toggle */}
+          <IconButton
+            onClick={toggle}
+            sx={{
+              color: "rgba(255,255,255,0.7)",
+              bgcolor: "rgba(255,255,255,0.08)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              width: 38,
+              height: 38,
+              "&:hover": {
+                bgcolor: "rgba(255,255,255,0.14)",
+                color: "#fff",
+              },
+              transition: "all 0.2s ease",
+            }}
+          >
+            {isDark
+              ? <LightModeIcon sx={{ fontSize: 18 }} />
+              : <DarkModeIcon  sx={{ fontSize: 18 }} />
+            }
+          </IconButton>
+
+          {/* Settings */}
           <IconButton
             onClick={() => navigate("/settings")}
             sx={{
@@ -138,6 +167,7 @@ function Navbar() {
             <SettingsIcon sx={{ fontSize: 18 }} />
           </IconButton>
 
+          {/* Notifications */}
           <Box sx={{ position: "relative" }}>
             <IconButton
               onClick={() => setPanelOpen((prev) => !prev)}

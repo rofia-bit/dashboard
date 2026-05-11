@@ -1,6 +1,6 @@
 export class LogRepositoryImpl {
 
-    #base = "https://schnapps-statue-shallot.ngrok-free.dev/";
+    #base = "http://localhost:8081";
 
     #headers() {
         const token = localStorage.getItem("token");

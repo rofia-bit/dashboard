@@ -5,7 +5,7 @@ export class UserRepositoryImpl {
         const token = localStorage.getItem("token");
         console.log(token);
 
-        const response = await fetch("https://schnapps-statue-shallot.ngrok-free.dev/users", {
+        const response = await fetch("http://localhost:8081/users", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export class UserRepositoryImpl {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch("https://schnapps-statue-shallot.ngrok-free.dev/users/register", {
+        const response = await fetch("http://localhost:8081/users/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json" ,
@@ -49,7 +49,7 @@ export class UserRepositoryImpl {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`https://schnapps-statue-shallot.ngrok-free.dev/users/${userId}`, {
+        const response = await fetch(`http://localhost:8081/users/${userId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json" ,
