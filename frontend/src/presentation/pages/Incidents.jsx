@@ -13,21 +13,16 @@ import { useGetAllIncidents } from "../hooks/incidents/useGetAllIncidents.js";
 import { useUpdateIncidentStatus } from "../hooks/incidents/useUpdateIncidentStatus.js";
 import { useDeleteIncident } from "../hooks/incidents/useDeleteIncident.js";
 
-import Header    from "../components/headerPage.jsx";
-import Search from "../components/searchBar.jsx";
+import Header        from "../components/headerPage.jsx";
+import Search        from "../components/searchBar.jsx";
 import MyTable, { cellSx } from "../components/table.jsx";
 import ConfirmDialog from "../components/dialog.jsx";
 
 const incidentRepository = new IncidentRepositoryImpl();
 const incidentUseCase    = new IncidentUseCase(incidentRepository);
 
-const STATUSES = [
-    "PENDING",
-    "ASSIGNED",
-    "IN_PROGRESS",
-    "RESOLVED",
-    "CANCELED",
-];
+
+const ACTIONABLE_STATUSES = ["PENDING", "ASSIGNED"];
 
 const STATUS_STYLE = {
     PENDING: {
@@ -35,7 +30,6 @@ const STATUS_STYLE = {
         color: "#ef4444",
         label: "Pending",
     },
-
     ASSIGNED: {
         bg: "#3b82f620",
         color: "#3b82f6",
@@ -47,13 +41,11 @@ const STATUS_STYLE = {
         color: "#f59e0b",
         label: "In Progress",
     },
-
     RESOLVED: {
         bg: "#22c55e20",
         color: "#22c55e",
         label: "Resolved",
     },
-
     CANCELED: {
         bg: "#6b728020",
         color: "#6b7280",
@@ -70,7 +62,8 @@ const COLUMNS = [
     { label: "Actions", align: "right" },
 ];
 
-const FILTER_OPTIONS = STATUSES.map(s => ({ value: s, label: STATUS_STYLE[s].label }));
+
+const FILTER_OPTIONS = ACTIONABLE_STATUSES.map(s => ({ value: s, label: STATUS_STYLE[s].label }));
 
 function DetailDialog({ incident, onClose }) {
     if (!incident) return null;
@@ -130,10 +123,7 @@ export default function Incidents() {
 
     const handleStatusChange = async (incidentId, newStatus) => {
         const result = await updateStatus(incidentId, newStatus);
-
-        if (result) {
-            await refetch(); // refresh list after success
-        }
+        if (result) await refetch();
     };
 
     const handleDelete = async () => {
@@ -172,9 +162,12 @@ export default function Incidents() {
                 emptyMsg="No incidents found."
             >
                 {filtered.map(incident => {
-                    const currentStatus =
-                        (incident.status ?? "PENDING").toUpperCase();
+                    const currentStatus = (incident.status ?? "PENDING").toUpperCase();
                     const style = STATUS_STYLE[currentStatus] ?? STATUS_STYLE.PENDING;
+
+
+                    const isActionable = ACTIONABLE_STATUSES.includes(currentStatus);
+
                     return (
                         <TableRow key={incident.incidentId}
                             sx={{ "&:hover": { bgcolor: "#1f2e55" }, transition: "background 0.15s" }}>
@@ -205,27 +198,44 @@ export default function Incidents() {
                                 </Typography>
                             </TableCell>
 
+
                             <TableCell sx={cellSx}>
-                                <Select
-                                    value={currentStatus}
-                                    onChange={e => handleStatusChange(incident.incidentId, e.target.value)}
-                                    disabled={statusLoading}
-                                    size="small"
-                                    sx={{
-                                        fontSize: 12, fontWeight: 600, minWidth: 130,
-                                        color: style.color ?? "#a0a9c9",
-                                        bgcolor: style.bg ?? "#2a3a6a",
-                                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                                        "& .MuiSvgIcon-root": { color: style.color ?? "#a0a9c9" },
-                                    }}
-                                    MenuProps={{ PaperProps: { sx: { bgcolor: "#1a2444", color: "#fff" } } }}
-                                >
-                                    {STATUSES.map(s => (
-                                        <MenuItem key={s} value={s} sx={{ fontSize: 12 }}>
-                                            {STATUS_STYLE[s]?.label ?? s}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                {isActionable ? (
+                                    <Select
+                                        value={currentStatus}
+                                        onChange={e => handleStatusChange(incident.incidentId, e.target.value)}
+                                        disabled={statusLoading}
+                                        size="small"
+                                        sx={{
+                                            fontSize: 12, fontWeight: 600, minWidth: 130,
+                                            color: style.color,
+                                            bgcolor: style.bg,
+                                            "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                                            "& .MuiSvgIcon-root": { color: style.color },
+                                        }}
+                                        MenuProps={{ PaperProps: { sx: { bgcolor: "#1a2444", color: "#fff" } } }}
+                                    >
+                                        {ACTIONABLE_STATUSES.map(s => (
+                                            <MenuItem key={s} value={s} sx={{ fontSize: 12 }}>
+                                                {STATUS_STYLE[s].label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                ) : (
+
+                                    <Chip
+                                        label={style.label}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: style.bg,
+                                            color: style.color,
+                                            fontWeight: 600,
+                                            fontSize: 11,
+                                            height: 24,
+                                            border: `1px solid ${style.color}40`,
+                                        }}
+                                    />
+                                )}
                             </TableCell>
 
                             <TableCell sx={cellSx} align="right">

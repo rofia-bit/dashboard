@@ -26,12 +26,8 @@ import { useDeleteReservation } from "../hooks/reservation/useDeleteReservation.
 const reservationRepository = new ReservationRepositoryImpl();
 const reservationUseCase = new ReservationUseCase(reservationRepository);
 
-const STATUSES = [
-    "PENDING",
-    "CONFIRMED",
-    "CANCELED",
-    "COMPLETED",
-];
+
+const ACTIONABLE_STATUSES = ["PENDING", "CONFIRMED"];
 
 const STATUS_STYLE = {
     PENDING: {
@@ -39,19 +35,16 @@ const STATUS_STYLE = {
         color: "#f59e0b",
         label: "Pending",
     },
-
     CONFIRMED: {
         bg: "#22c55e20",
         color: "#22c55e",
         label: "Confirmed",
     },
-
     CANCELED: {
         bg: "#ef444420",
         color: "#ef4444",
         label: "Canceled",
     },
-
     COMPLETED: {
         bg: "#3b82f620",
         color: "#3b82f6",
@@ -59,10 +52,8 @@ const STATUS_STYLE = {
     },
 };
 
-const FILTER_OPTIONS = STATUSES.map(s => ({
-    value: s,
-    label: STATUS_STYLE[s].label,
-}));
+const ALL_STATUSES = ["PENDING", "CONFIRMED", "CANCELED", "COMPLETED"];
+const FILTER_OPTIONS = ALL_STATUSES.map(s => ({ value: s, label: STATUS_STYLE[s].label }));
 
 const COLUMNS = [
     { label: "Reservation ID" },
@@ -102,20 +93,14 @@ function ReservationDetailDialog({ reservation, onClose }) {
             icon: <AccessTimeOutlinedIcon sx={{ fontSize: 15 }} />,
             label: "Start Time",
             value: reservation.startTime
-                ? new Date(reservation.startTime).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })
+                ? new Date(reservation.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
                 : "—",
         },
         {
             icon: <AccessTimeOutlinedIcon sx={{ fontSize: 15 }} />,
             label: "End Time",
             value: reservation.endTime
-                ? new Date(reservation.endTime).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })
+                ? new Date(reservation.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
                 : "—",
         },
         {
@@ -129,19 +114,8 @@ function ReservationDetailDialog({ reservation, onClose }) {
     const style = STATUS_STYLE[status] ?? STATUS_STYLE.PENDING;
 
     return (
-        <Dialog
-            open
-            onClose={onClose}
-            maxWidth="xs"
-            fullWidth
-            PaperProps={{
-                sx: {
-                    bgcolor: "#1a2444",
-                    border: "1px solid #2a3a6a",
-                    borderRadius: 2,
-                },
-            }}
-        >
+        <Dialog open onClose={onClose} maxWidth="xs" fullWidth
+            PaperProps={{ sx: { bgcolor: "#1a2444", border: "1px solid #2a3a6a", borderRadius: 2 } }}>
             <DialogTitle sx={{ color: "#fff", fontWeight: 700, fontSize: 16, pb: 1 }}>
                 Reservation Details
             </DialogTitle>
@@ -164,18 +138,10 @@ function ReservationDetailDialog({ reservation, onClose }) {
 
                     <Box>
                         <Typography sx={labelSx}>Status</Typography>
-                        <Chip
-                            label={style.label}
-                            size="small"
-                            sx={{
-                                bgcolor: style.bg,
-                                color: style.color,
-                                fontWeight: 600,
-                                fontSize: 11,
-                                height: 24,
-                                border: `1px solid ${style.color}40`,
-                            }}
-                        />
+                        <Chip label={style.label} size="small" sx={{
+                            bgcolor: style.bg, color: style.color, fontWeight: 600,
+                            fontSize: 11, height: 24, border: `1px solid ${style.color}40`,
+                        }} />
                     </Box>
 
                     {fields.map(f => (
@@ -183,9 +149,7 @@ function ReservationDetailDialog({ reservation, onClose }) {
                             <Typography sx={labelSx}>{f.label}</Typography>
                             <Stack direction="row" alignItems="center" spacing={0.8}>
                                 <Box sx={{ color: "#2563eb" }}>{f.icon}</Box>
-                                <Typography sx={{ color: "#e2e8f0", fontSize: 13 }}>
-                                    {f.value || "—"}
-                                </Typography>
+                                <Typography sx={{ color: "#e2e8f0", fontSize: 13 }}>{f.value || "—"}</Typography>
                             </Stack>
                         </Box>
                     ))}
@@ -193,47 +157,33 @@ function ReservationDetailDialog({ reservation, onClose }) {
                     <Box>
                         <Typography sx={labelSx}>Created At</Typography>
                         <Typography sx={{ color: "#a0a9c9", fontSize: 13 }}>
-                            {reservation.createdAt
-                                ? new Date(reservation.createdAt).toLocaleString()
-                                : "—"}
+                            {reservation.createdAt ? new Date(reservation.createdAt).toLocaleString() : "—"}
                         </Typography>
                     </Box>
                 </Stack>
             </DialogContent>
 
             <DialogActions sx={{ px: 3, pb: 2 }}>
-                <Button onClick={onClose} sx={{ color: "#a0a9c9", textTransform: "none" }}>
-                    Close
-                </Button>
+                <Button onClick={onClose} sx={{ color: "#a0a9c9", textTransform: "none" }}>Close</Button>
             </DialogActions>
         </Dialog>
     );
 }
 
 export default function Reservations() {
-    const { reservations, loading, error, refetch } =
-        useGetAllReservations(reservationUseCase);
+    const { reservations, loading, error, refetch }     = useGetAllReservations(reservationUseCase);
+    const { updateStatus, loading: statusLoading }      = useUpdateReservationStatus(reservationUseCase);
+    const { deleteReservation, loading: deleteLoading } = useDeleteReservation(reservationUseCase);
 
-    const { updateStatus, loading: statusLoading } =
-        useUpdateReservationStatus(reservationUseCase);
-
-    const { deleteReservation, loading: deleteLoading } =
-        useDeleteReservation(reservationUseCase);
-
-    const [search, setSearch] = useState("");
-    const [filterStatus, setFilterStatus] = useState("ALL");
-    const [detailTarget, setDetailTarget] = useState(null);
-    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [search,        setSearch]        = useState("");
+    const [filterStatus,  setFilterStatus]  = useState("ALL");
+    const [detailTarget,  setDetailTarget]  = useState(null);
+    const [deleteTarget,  setDeleteTarget]  = useState(null);
     const [localStatuses, setLocalStatuses] = useState({});
 
     const handleStatusChange = async (reservationId, newStatus) => {
-        setLocalStatuses(prev => ({
-            ...prev,
-            [reservationId]: newStatus,
-        }));
-
+        setLocalStatuses(prev => ({ ...prev, [reservationId]: newStatus }));
         const result = await updateStatus(reservationId, newStatus);
-
         if (result) {
             await refetch();
         } else {
@@ -246,36 +196,20 @@ export default function Reservations() {
     };
 
     const handleDelete = async () => {
-        const ok = await deleteReservation(
-            deleteTarget.reservationId,
-            deleteTarget.userId
-        );
-
-        if (ok) {
-            setDeleteTarget(null);
-            await refetch();
-        }
+        const ok = await deleteReservation(deleteTarget.reservationId, deleteTarget.userId);
+        if (ok) { setDeleteTarget(null); await refetch(); }
     };
 
-    const filtered = useMemo(() => {
-        return reservations.filter(r => {
-            const currentStatus =
-                (localStatuses[r.reservationId] ?? r.status ?? "PENDING").toUpperCase();
-
-            const statusMatch =
-                filterStatus === "ALL" || currentStatus === filterStatus;
-
-            const q = search.toLowerCase();
-
-            const searchMatch =
-                !search ||
-                r.reservationId?.toLowerCase().includes(q) ||
-                r.userId?.toLowerCase().includes(q) ||
-                r.status?.toLowerCase().includes(q);
-
-            return statusMatch && searchMatch;
-        });
-    }, [reservations, search, filterStatus, localStatuses]);
+    const filtered = useMemo(() => reservations.filter(r => {
+        const currentStatus = (localStatuses[r.reservationId] ?? r.status ?? "PENDING").toUpperCase();
+        const statusMatch   = filterStatus === "ALL" || currentStatus === filterStatus;
+        const q             = search.toLowerCase();
+        const searchMatch   = !search ||
+            r.reservationId?.toLowerCase().includes(q) ||
+            r.userId?.toLowerCase().includes(q) ||
+            r.status?.toLowerCase().includes(q);
+        return statusMatch && searchMatch;
+    }), [reservations, search, filterStatus, localStatuses]);
 
     return (
         <Box sx={{ p: 4, bgcolor: "#0f1523", minHeight: "100vh" }}>
@@ -295,8 +229,7 @@ export default function Reservations() {
             />
 
             <MyTable
-                loading={loading}
-                error={error}
+                loading={loading} error={error}
                 columns={COLUMNS}
                 empty={filtered.length === 0}
                 emptyMsg="No reservations found."
@@ -304,17 +237,14 @@ export default function Reservations() {
                 {filtered.map(reservation => {
                     const currentStatus =
                         (localStatuses[reservation.reservationId] ?? reservation.status ?? "PENDING").toUpperCase();
-
                     const style = STATUS_STYLE[currentStatus] ?? STATUS_STYLE.PENDING;
 
+                    const isActionable = ACTIONABLE_STATUSES.includes(currentStatus);
+
                     return (
-                        <TableRow
-                            key={reservation.reservationId}
-                            sx={{
-                                "&:hover": { bgcolor: "#1f2e55" },
-                                transition: "background 0.15s",
-                            }}
-                        >
+                        <TableRow key={reservation.reservationId}
+                            sx={{ "&:hover": { bgcolor: "#1f2e55" }, transition: "background 0.15s" }}>
+
                             <TableCell sx={cellSx}>
                                 <Typography sx={{ fontSize: 11, color: "#6b7280", fontFamily: "monospace" }}>
                                     {reservation.reservationId?.slice(0, 8)}…
@@ -330,11 +260,7 @@ export default function Reservations() {
                             <TableCell sx={cellSx}>
                                 <Typography sx={{ fontSize: 12, color: "#a0a9c9" }}>
                                     {reservation.reservationDate
-                                        ? new Date(reservation.reservationDate).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "short",
-                                            year: "numeric",
-                                        })
+                                        ? new Date(reservation.reservationDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
                                         : "—"}
                                 </Typography>
                             </TableCell>
@@ -342,13 +268,7 @@ export default function Reservations() {
                             <TableCell sx={cellSx}>
                                 <Typography sx={{ fontSize: 12, color: "#a0a9c9" }}>
                                     {reservation.startTime && reservation.endTime
-                                        ? `${new Date(reservation.startTime).toLocaleTimeString([], {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                        })} – ${new Date(reservation.endTime).toLocaleTimeString([], {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                        })}`
+                                        ? `${new Date(reservation.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – ${new Date(reservation.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
                                         : "—"}
                                 </Typography>
                             </TableCell>
@@ -360,66 +280,55 @@ export default function Reservations() {
                             </TableCell>
 
                             <TableCell sx={cellSx}>
-                                <Select
-                                    value={currentStatus}
-                                    onChange={e =>
-                                        handleStatusChange(reservation.reservationId, e.target.value)
-                                    }
-                                    disabled={statusLoading}
-                                    size="small"
-                                    sx={{
-                                        fontSize: 12,
-                                        fontWeight: 600,
-                                        minWidth: 120,
-                                        color: style.color,
-                                        bgcolor: style.bg,
-                                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                                        "& .MuiSvgIcon-root": { color: style.color },
-                                    }}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            sx: { bgcolor: "#1a2444", color: "#fff" },
-                                        },
-                                    }}
-                                >
-                                    {STATUSES.map(s => (
-                                        <MenuItem key={s} value={s} sx={{ fontSize: 12 }}>
-                                            {STATUS_STYLE[s].label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                {isActionable ? (
+                                    <Select
+                                        value={currentStatus}
+                                        onChange={e => handleStatusChange(reservation.reservationId, e.target.value)}
+                                        disabled={statusLoading}
+                                        size="small"
+                                        sx={{
+                                            fontSize: 12, fontWeight: 600, minWidth: 120,
+                                            color: style.color,
+                                            bgcolor: style.bg,
+                                            "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                                            "& .MuiSvgIcon-root": { color: style.color },
+                                        }}
+                                        MenuProps={{ PaperProps: { sx: { bgcolor: "#1a2444", color: "#fff" } } }}
+                                    >
+                                        {ACTIONABLE_STATUSES.map(s => (
+                                            <MenuItem key={s} value={s} sx={{ fontSize: 12 }}>
+                                                {STATUS_STYLE[s].label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                ) : (
+
+                                    <Chip
+                                        label={style.label}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: style.bg,
+                                            color: style.color,
+                                            fontWeight: 600,
+                                            fontSize: 11,
+                                            height: 24,
+                                            border: `1px solid ${style.color}40`,
+                                        }}
+                                    />
+                                )}
                             </TableCell>
 
                             <TableCell sx={cellSx} align="right">
                                 <Stack direction="row" spacing={0.5} justifyContent="flex-end">
                                     <Tooltip title="View details">
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => setDetailTarget(reservation)}
-                                            sx={{
-                                                color: "#6b7280",
-                                                "&:hover": {
-                                                    color: "#2563eb",
-                                                    bgcolor: "#2563eb15",
-                                                },
-                                            }}
-                                        >
+                                        <IconButton size="small" onClick={() => setDetailTarget(reservation)}
+                                            sx={{ color: "#6b7280", "&:hover": { color: "#2563eb", bgcolor: "#2563eb15" } }}>
                                             <VisibilityOutlinedIcon fontSize="small" />
                                         </IconButton>
                                     </Tooltip>
-
                                     <Tooltip title="Delete reservation">
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => setDeleteTarget(reservation)}
-                                            sx={{
-                                                color: "#6b7280",
-                                                "&:hover": {
-                                                    color: "#ef4444",
-                                                    bgcolor: "#ef444415",
-                                                },
-                                            }}
-                                        >
+                                        <IconButton size="small" onClick={() => setDeleteTarget(reservation)}
+                                            sx={{ color: "#6b7280", "&:hover": { color: "#ef4444", bgcolor: "#ef444415" } }}>
                                             <DeleteOutlineIcon fontSize="small" />
                                         </IconButton>
                                     </Tooltip>
@@ -430,10 +339,7 @@ export default function Reservations() {
                 })}
             </MyTable>
 
-            <ReservationDetailDialog
-                reservation={detailTarget}
-                onClose={() => setDetailTarget(null)}
-            />
+            <ReservationDetailDialog reservation={detailTarget} onClose={() => setDetailTarget(null)} />
 
             <ConfirmDialog
                 open={!!deleteTarget}
