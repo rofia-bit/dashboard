@@ -25,7 +25,6 @@ import ConfirmDialog from "../components/dialog.jsx";
 const guestRequestRepository = new GuestRequestRepositoryImpl();
 const guestRequestUseCase    = new GuestRequestUseCase(guestRequestRepository);
 
-// ── Status config ──────────────────────────────────────────────────────────────
 const STATUSES = [
     "PENDING",
     "APPROVED",
@@ -35,40 +34,42 @@ const STATUSES = [
 ];
 
 const STATUS_STYLE = {
-
     PENDING: {
         bg: "#f59e0b20",
         color: "#f59e0b",
         label: "Pending",
     },
-
     APPROVED: {
         bg: "#22c55e20",
         color: "#22c55e",
         label: "Approved",
     },
-
     REJECTED: {
         bg: "#ef444420",
         color: "#ef4444",
         label: "Rejected",
     },
-
     CANCELED: {
         bg: "#6b728020",
         color: "#6b7280",
         label: "Canceled",
     },
-
     EXPIRED: {
         bg: "#7c3aed20",
         color: "#7c3aed",
         label: "Expired",
     },
 };
+
 const FILTER_OPTIONS = STATUSES.map(s => ({ value: s, label: STATUS_STYLE[s].label }));
 
-// ── Detail Dialog ──────────────────────────────────────────────────────────────
+
+function getAllowedTransitions(currentStatus) {
+    if (currentStatus === "PENDING") return ["PENDING", "APPROVED"];
+    return [currentStatus]; // locked — only shows current value
+}
+
+
 function GuestDetailDialog({ request, onClose }) {
     if (!request) return null;
 
@@ -189,6 +190,9 @@ export default function GuestRequests() {
                     const currentStatus = (localStatuses[id] ?? request.status ?? "PENDING").toUpperCase();
                     const style = STATUS_STYLE[currentStatus] ?? STATUS_STYLE.PENDING;
 
+                    const allowedOptions = getAllowedTransitions(currentStatus);
+                    const isLocked = allowedOptions.length === 1; // single option = no real choice
+
                     return (
                         <TableRow key={id}
                             sx={{ "&:hover": { bgcolor: "#1f2e55" }, transition: "background 0.15s" }}>
@@ -228,23 +232,23 @@ export default function GuestRequests() {
                                 </Typography>
                             </TableCell>
 
-                            {/* Status dropdown */}
                             <TableCell sx={cellSx}>
                                 <Select
                                     value={currentStatus}
                                     onChange={e => handleStatusChange(id, e.target.value)}
-                                    disabled={statusLoading}
+                                    disabled={statusLoading || isLocked}
                                     size="small"
                                     sx={{
                                         fontSize: 12, fontWeight: 600, minWidth: 120,
                                         color: style.color,
                                         bgcolor: style.bg,
+                                        opacity: isLocked ? 0.7 : 1,
                                         "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                                        "& .MuiSvgIcon-root": { color: style.color },
+                                        "& .MuiSvgIcon-root": { color: isLocked ? "transparent" : style.color },
                                     }}
                                     MenuProps={{ PaperProps: { sx: { bgcolor: "#1a2444", color: "#fff" } } }}
                                 >
-                                    {STATUSES.map(s => (
+                                    {allowedOptions.map(s => (
                                         <MenuItem key={s} value={s} sx={{ fontSize: 12 }}>
                                             {STATUS_STYLE[s].label}
                                         </MenuItem>

@@ -33,6 +33,7 @@
     "react-router-dom": "^6.30.3",
     "recharts": "^3.8.1",
     "sockjs-client": "^1.6.1",
+    "stomp": "^0.1.1",
     "yup": "^1.7.1"
   },
   "devDependencies": {
