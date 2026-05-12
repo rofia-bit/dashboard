@@ -11,7 +11,7 @@ export class GuestRequestRepositoryImpl {
     }
 
     async getAllGuestRequests() {
-        const response = await fetch(`${this.#base}/guest-requests/pending`, {
+        const response = await fetch(`${this.#base}/guest-requests`, {
             method: "GET",
             headers: this.#headers(),
         });
@@ -31,14 +31,35 @@ export class GuestRequestRepositoryImpl {
     }
 
     async updateGuestRequestStatus(requestId, status) {
-        const response = await fetch(`${this.#base}/guest-requests/${requestId}/status`, {
-            method: "PATCH",
-            headers: this.#headers(),
-            body: JSON.stringify({ status }),
-        });
-        const json = await response.json();
-        if (!response.ok) throw new Error(json.message || "Failed to update guest request status");
-        return json;
+
+        const response = await fetch(
+            `${this.#base}/guest-requests/${requestId}/status`,
+            {
+                method: "PATCH",
+                headers: this.#headers(),
+                body: JSON.stringify({
+                    requestStatus: status
+                }),
+            }
+        );
+
+        if (!response.ok) {
+
+            let errorMessage = "Failed to update guest request status";
+
+            try {
+                const errorJson = await response.json();
+                errorMessage = errorJson.message || errorMessage;
+            } catch (_) {}
+
+            throw new Error(errorMessage);
+        }
+
+        try {
+            return await response.json();
+        } catch (_) {
+            return true;
+        }
     }
 
     async deleteGuestRequest(requestId) {

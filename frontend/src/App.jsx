@@ -15,9 +15,10 @@ import Settings      from "./presentation/pages/Settings.jsx";
 import Shifts        from "./presentation/pages/Shifts.jsx";
 import Facilities    from "./presentation/pages/Facilities.jsx";
 import GuardDashboard from "./presentation/pages/guard/GuardDashboard";
-import AccessLogs     from "./presentation/pages/guard/AccessLogs";
 import QRScanner      from "./presentation/pages/guard/QRScanner";
 import GuardShifts    from "./presentation/pages/guard/GuardShifts";
+import Reservations from "./presentation/pages/Reservations.jsx";
+import Logs from "./presentation/pages/Logs.jsx";
 
 const pageTransition = {
     initial:  { opacity: 0, y: 14 },
@@ -57,11 +58,13 @@ function App() {
                     <Route path="/help"           element={<AnimatedPage><HelpSupport /></AnimatedPage>} />
                     <Route path="/shifts"         element={<AnimatedPage><Shifts /></AnimatedPage>} />
                     <Route path="/facilities"     element={<AnimatedPage><Facilities /></AnimatedPage>} />
+                    <Route path="/reservations"     element={<AnimatedPage><Reservations /></AnimatedPage>} />
+                    <Route path="/logs" element={<AnimatedPage><Logs /></AnimatedPage>} />
                 </Route>
 
                 <Route element={<AppLayout />}>
                     <Route path="/guard"        element={<AnimatedPage><GuardDashboard /></AnimatedPage>} />
-                    <Route path="/guard/logs"   element={<AnimatedPage><AccessLogs /></AnimatedPage>} />
+                    <Route path="/guard/logs"   element={<AnimatedPage><Logs /></AnimatedPage>} />
                     <Route path="/guard/qr"     element={<AnimatedPage><QRScanner /></AnimatedPage>} />
                     <Route path="/guard/shifts" element={<AnimatedPage><GuardShifts /></AnimatedPage>} />
                 </Route>

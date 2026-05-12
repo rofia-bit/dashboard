@@ -28,13 +28,34 @@ import ConfirmDialog from "../components/dialog.jsx";
 const facilityRepository = new FacilityRepositoryImpl();
 const facilityUseCase    = new FacilityUseCase(facilityRepository);
 
-const STATUSES = ["AVAILABLE", "OCCUPIED", "MAINTENANCE", "CLOSED"];
+const STATUSES = [
+    "AVAILABLE",
+    "RESERVED",
+    "OUT_OF_SERVICE",
+];
 
 const STATUS_STYLE = {
-    AVAILABLE:   { bg: "#22c55e20", color: "#22c55e", label: "Available",   dot: "#22c55e" },
-    OCCUPIED:    { bg: "#f59e0b20", color: "#f59e0b", label: "Occupied",    dot: "#f59e0b" },
-    MAINTENANCE: { bg: "#ef444420", color: "#ef4444", label: "Maintenance", dot: "#ef4444" },
-    CLOSED:      { bg: "#6b728020", color: "#6b7280", label: "Closed",      dot: "#6b7280" },
+
+    AVAILABLE: {
+        bg: "#22c55e20",
+        color: "#22c55e",
+        label: "Available",
+        dot: "#22c55e",
+    },
+
+    RESERVED: {
+        bg: "#f59e0b20",
+        color: "#f59e0b",
+        label: "Reserved",
+        dot: "#f59e0b",
+    },
+
+    OUT_OF_SERVICE: {
+        bg: "#ef444420",
+        color: "#ef4444",
+        label: "Out Of Service",
+        dot: "#ef4444",
+    },
 };
 
 const FILTER_OPTIONS = [
@@ -55,12 +76,30 @@ const inputSx = {
     "& .MuiInputLabel-root.Mui-focused": { color: "#2563eb" },
 };
 
-const EMPTY_FORM = { name: "", capacity: "", imageUrl: "", facilityStatus: "AVAILABLE" };
+const EMPTY_FORM = {
+    name: "",
+    capacity: "",
+    facilityStatus: "AVAILABLE",
+    image: null,
+};
 
 function FacilityFormDialog({ open, onClose, onSubmit, loading, initial }) {
     const [form, setForm] = useState(initial ?? EMPTY_FORM);
     const isEdit = !!initial;
-    const set = k => e => setForm(prev => ({ ...prev, [k]: e.target.value }));
+    const set = k => e =>
+        setForm(prev => ({
+            ...prev,
+            [k]: e.target.value,
+        }));
+
+    const setImage = e => {
+        const file = e.target.files?.[0] ?? null;
+
+        setForm(prev => ({
+            ...prev,
+            image: file,
+        }));
+    };
     const valid = form.name && form.capacity;
 
     return (
@@ -77,11 +116,43 @@ function FacilityFormDialog({ open, onClose, onSubmit, loading, initial }) {
                         label="Capacity" type="number" value={form.capacity} onChange={set("capacity")}
                         inputProps={{ min: 1 }} fullWidth sx={inputSx}
                     />
-                    <TextField label="Image URL" value={form.imageUrl} onChange={set("imageUrl")} fullWidth sx={inputSx}
-                        InputProps={{
-                            startAdornment: <InputAdornment position="start"><LinkIcon sx={{ fontSize: 16, color: "#6b7280" }} /></InputAdornment>
-                        }}
-                    />
+                    <Box>
+                        <Typography sx={{ color: "#6b7280", fontSize: 12, mb: 1 }}>
+                            Facility Image
+                        </Typography>
+
+                        <Button
+                            variant="outlined"
+                            component="label"
+                            fullWidth
+                            sx={{
+                                borderColor: "#2a3a6a",
+                                color: "#e2e8f0",
+                                textTransform: "none",
+                                justifyContent: "flex-start",
+                                py: 1.2,
+                                "&:hover": {
+                                    borderColor: "#2563eb",
+                                    bgcolor: "#2563eb10",
+                                },
+                            }}
+                        >
+                            Upload Image
+
+                            <input
+                                hidden
+                                type="file"
+                                accept="image/*"
+                                onChange={setImage}
+                            />
+                        </Button>
+
+                        {form.image && (
+                            <Typography sx={{ color: "#22c55e", fontSize: 12, mt: 1 }}>
+                                Selected: {form.image.name}
+                            </Typography>
+                        )}
+                    </Box>
                     <Box>
                         <Typography sx={{ color: "#6b7280", fontSize: 12, mb: 0.8 }}>Status</Typography>
                         <Select
@@ -112,7 +183,14 @@ function FacilityFormDialog({ open, onClose, onSubmit, loading, initial }) {
             <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
                 <Button onClick={onClose} sx={{ color: "#a0a9c9", textTransform: "none" }}>Cancel</Button>
                 <Button
-                    onClick={() => onSubmit({ ...form, capacity: Number(form.capacity) })}
+                    onClick={() =>
+                        onSubmit({
+                            name: form.name,
+                            capacity: Number(form.capacity),
+                            facilityStatus: form.facilityStatus,
+                            image: form.image,
+                        })
+                    }
                     disabled={!valid || loading}
                     variant="contained"
                     sx={{
@@ -124,12 +202,19 @@ function FacilityFormDialog({ open, onClose, onSubmit, loading, initial }) {
                 </Button>
             </DialogActions>
         </Dialog>
+        
     );
 }
 
 function FacilityCard({ facility, onEdit, onDelete, onStatusChange, statusLoading }) {
     const status = facility.facilityStatus?.toUpperCase() ?? "AVAILABLE";
     const style  = STATUS_STYLE[status] ?? STATUS_STYLE.AVAILABLE;
+
+    const API_BASE = "http://localhost:8081";
+    const imageSrc = facility.imageUrl
+        ? `${API_BASE}${facility.imageUrl}`
+        : null;
+
 
     return (
         <Box sx={{
@@ -150,7 +235,7 @@ function FacilityCard({ facility, onEdit, onDelete, onStatusChange, statusLoadin
                 bgcolor: "#0d1526",
                 position: "relative",
                 overflow: "hidden",
-                backgroundImage: facility.imageUrl ? `url(${facility.imageUrl})` : "none",
+                backgroundImage: imageSrc ? `url("${imageSrc}")` : "none",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}>
@@ -417,9 +502,9 @@ export default function Facilities() {
                     onSubmit={handleEdit}
                     loading={updateLoading}
                     initial={{
-                        name:           editTarget.name ?? "",
-                        capacity:       editTarget.capacity ?? "",
-                        imageUrl:       editTarget.imageUrl ?? "",
+                        name: editTarget.name ?? "",
+                        capacity: editTarget.capacity ?? "",
+                        image: null,
                         facilityStatus: editTarget.facilityStatus ?? "AVAILABLE",
                     }}
                 />

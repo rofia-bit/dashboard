@@ -41,14 +41,31 @@ export class IncidentRepositoryImpl {
     }
 
     async updateIncidentStatus(incidentId, status) {
-        const response = await fetch(`${this.#base}/incidents/${incidentId}/status`, {
-            method: "PATCH",
-            headers: this.#headers(),
-            body: JSON.stringify({ status }),
-        });
-        const json = await response.json();
-        if (!response.ok) throw new Error(json.message || "Failed to update incident status");
-        return json;
+        const response = await fetch(
+            `${this.#base}/incidents/${incidentId}/status?status=${encodeURIComponent(status)}`,
+            {
+                method: "PATCH",
+                headers: this.#headers(),
+            }
+        );
+
+        if (!response.ok) {
+            let errorMessage = "Failed to update incident status";
+
+            try {
+                const errorJson = await response.json();
+                errorMessage = errorJson.message || errorMessage;
+            } catch (_) {}
+
+            throw new Error(errorMessage);
+        }
+
+        // If backend returns empty body, still consider it success
+        try {
+            return await response.json();
+        } catch (_) {
+            return true;
+        }
     }
 
     async deleteIncident(incidentId) {

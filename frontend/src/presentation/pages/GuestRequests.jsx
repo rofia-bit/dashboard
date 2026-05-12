@@ -26,11 +26,45 @@ const guestRequestRepository = new GuestRequestRepositoryImpl();
 const guestRequestUseCase    = new GuestRequestUseCase(guestRequestRepository);
 
 // ── Status config ──────────────────────────────────────────────────────────────
-const STATUSES = ["PENDING", "APPROVED", "REJECTED"];
+const STATUSES = [
+    "PENDING",
+    "APPROVED",
+    "REJECTED",
+    "CANCELED",
+    "EXPIRED",
+];
+
 const STATUS_STYLE = {
-    PENDING:  { bg: "#f59e0b20", color: "#f59e0b", label: "Pending" },
-    APPROVED: { bg: "#22c55e20", color: "#22c55e", label: "Approved" },
-    REJECTED: { bg: "#ef444420", color: "#ef4444", label: "Rejected" },
+
+    PENDING: {
+        bg: "#f59e0b20",
+        color: "#f59e0b",
+        label: "Pending",
+    },
+
+    APPROVED: {
+        bg: "#22c55e20",
+        color: "#22c55e",
+        label: "Approved",
+    },
+
+    REJECTED: {
+        bg: "#ef444420",
+        color: "#ef4444",
+        label: "Rejected",
+    },
+
+    CANCELED: {
+        bg: "#6b728020",
+        color: "#6b7280",
+        label: "Canceled",
+    },
+
+    EXPIRED: {
+        bg: "#7c3aed20",
+        color: "#7c3aed",
+        label: "Expired",
+    },
 };
 const FILTER_OPTIONS = STATUSES.map(s => ({ value: s, label: STATUS_STYLE[s].label }));
 

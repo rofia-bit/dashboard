@@ -21,13 +21,44 @@ import ConfirmDialog from "../components/dialog.jsx";
 const incidentRepository = new IncidentRepositoryImpl();
 const incidentUseCase    = new IncidentUseCase(incidentRepository);
 
-const STATUSES = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
+const STATUSES = [
+    "PENDING",
+    "ASSIGNED",
+    "IN_PROGRESS",
+    "RESOLVED",
+    "CANCELED",
+];
 
 const STATUS_STYLE = {
-    OPEN:        { bg: "#ef444420", color: "#ef4444", label: "Open" },
-    IN_PROGRESS: { bg: "#f59e0b20", color: "#f59e0b", label: "In Progress" },
-    RESOLVED:    { bg: "#22c55e20", color: "#22c55e", label: "Resolved" },
-    CLOSED:      { bg: "#6b728020", color: "#6b7280", label: "Closed" },
+    PENDING: {
+        bg: "#ef444420",
+        color: "#ef4444",
+        label: "Pending",
+    },
+
+    ASSIGNED: {
+        bg: "#3b82f620",
+        color: "#3b82f6",
+        label: "Assigned",
+    },
+
+    IN_PROGRESS: {
+        bg: "#f59e0b20",
+        color: "#f59e0b",
+        label: "In Progress",
+    },
+
+    RESOLVED: {
+        bg: "#22c55e20",
+        color: "#22c55e",
+        label: "Resolved",
+    },
+
+    CANCELED: {
+        bg: "#6b728020",
+        color: "#6b7280",
+        label: "Canceled",
+    },
 };
 
 const COLUMNS = [
@@ -96,13 +127,12 @@ export default function Incidents() {
     const [filterStatus, setFilterStatus]   = useState("ALL");
     const [detailTarget, setDetailTarget]   = useState(null);
     const [deleteTarget, setDeleteTarget]   = useState(null);
-    const [localStatuses, setLocalStatuses] = useState({});
 
     const handleStatusChange = async (incidentId, newStatus) => {
-        setLocalStatuses(prev => ({ ...prev, [incidentId]: newStatus }));
         const result = await updateStatus(incidentId, newStatus);
-        if (!result) {
-            setLocalStatuses(prev => { const c = { ...prev }; delete c[incidentId]; return c; });
+
+        if (result) {
+            await refetch(); // refresh list after success
         }
     };
 
@@ -142,8 +172,9 @@ export default function Incidents() {
                 emptyMsg="No incidents found."
             >
                 {filtered.map(incident => {
-                    const currentStatus = (localStatuses[incident.incidentId] ?? incident.status ?? "OPEN").toUpperCase();
-                    const style = STATUS_STYLE[currentStatus] ?? {};
+                    const currentStatus =
+                        (incident.status ?? "PENDING").toUpperCase();
+                    const style = STATUS_STYLE[currentStatus] ?? STATUS_STYLE.PENDING;
                     return (
                         <TableRow key={incident.incidentId}
                             sx={{ "&:hover": { bgcolor: "#1f2e55" }, transition: "background 0.15s" }}>
@@ -191,7 +222,7 @@ export default function Incidents() {
                                 >
                                     {STATUSES.map(s => (
                                         <MenuItem key={s} value={s} sx={{ fontSize: 12 }}>
-                                            {STATUS_STYLE[s].label}
+                                            {STATUS_STYLE[s]?.label ?? s}
                                         </MenuItem>
                                     ))}
                                 </Select>

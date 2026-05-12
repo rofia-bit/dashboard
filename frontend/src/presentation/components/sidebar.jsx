@@ -7,12 +7,13 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HelpIcon from "@mui/icons-material/Help";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import ListAltIcon from "@mui/icons-material/ListAlt";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import BusinessIcon from "@mui/icons-material/Business";
 import ScheduleIcon from "@mui/icons-material/Schedule";
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import HistoryIcon from "@mui/icons-material/History";
 
 import { Box, List, ListItem, ListItemIcon, Tooltip, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +42,16 @@ const ADMIN_MENU = {
         { icon: <PeopleOutlineIcon sx={{ fontSize: 20 }} />,      label: "Guest Requests", path: "/guest-requests" },
         { icon: <ScheduleIcon sx={{ fontSize: 20 }} />,           label: "Shifts",         path: "/shifts" },
         { icon: <BusinessIcon sx={{ fontSize: 20 }} />,           label: "Facilities",     path: "/facilities" },
+        {
+            icon: <CalendarTodayOutlinedIcon sx={{ fontSize: 20 }} />,
+            label: "Reservations",
+            path: "/reservations",
+        },
+        {
+          icon: <HistoryIcon sx={{ fontSize: 20 }} />,
+          label: "Access Logs",
+          path: "/logs",
+        },
       ],
     },
   ],
@@ -58,8 +69,13 @@ const GUARD_MENU = {
       items: [
         { icon: <DashboardIcon sx={{ fontSize: 20 }} />,     label: "Dashboard",   path: "/guard" },
         { icon: <QrCodeScannerIcon sx={{ fontSize: 20 }} />, label: "QR Scanner",  path: "/guard/qr" },
-        { icon: <ListAltIcon sx={{ fontSize: 20 }} />,       label: "Access Logs", path: "/guard/logs" },
         { icon: <AccessTimeIcon sx={{ fontSize: 20 }} />,    label: "My Shifts",   path: "/guard/shifts" },
+
+        {
+          icon: <HistoryIcon sx={{ fontSize: 20 }} />,
+          label: "Access Logs",
+          path: "/logs",
+        },
       ],
     },
   ],

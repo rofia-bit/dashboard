@@ -6,9 +6,13 @@ export function usePatchReport(reportUseCase) {
     const [success, setSuccess] = useState(false);
 
     const patchReport = async (reportId, adminResponse) => {
+        console.log("HOOK reportId =", reportId);
+        console.log("HOOK adminResponse =", adminResponse);
+
         setLoading(true);
         setError(null);
         setSuccess(false);
+
         try {
             const result = await reportUseCase.patchReport(reportId, adminResponse);
             setSuccess(true);

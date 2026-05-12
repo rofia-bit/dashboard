@@ -4,11 +4,11 @@ export class LogUseCase {
         this.logRepository = logRepository;
     }
 
-    async getLogs() {
-        return await this.logRepository.getLogs();
+    async getAllLogs() {
+        return await this.logRepository.getAllLogs();
     }
 
-    async createLog(personFullName, userRole, logState) {
-        return await this.logRepository.createLog(personFullName, userRole, logState);
+    async getMyLogs() {
+        return await this.logRepository.getMyLogs();
     }
 }

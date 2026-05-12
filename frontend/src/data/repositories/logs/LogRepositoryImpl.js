@@ -1,33 +1,40 @@
 export class LogRepositoryImpl {
-
     #base = "http://localhost:8081";
 
     #headers() {
-        const token = localStorage.getItem("token");
         return {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + token,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
         };
     }
 
-    async getLogs() {
+    async getAllLogs() {
         const response = await fetch(`${this.#base}/logs`, {
             method: "GET",
             headers: this.#headers(),
         });
+
         const json = await response.json();
-        if (!response.ok) throw new Error(json.message || "Failed to fetch logs");
+
+        if (!response.ok) {
+            throw new Error(json.message || "Failed to fetch logs");
+        }
+
         return json;
     }
 
-    async createLog(personFullName, userRole, logState) {
-        const response = await fetch(`${this.#base}/logs/create`, {
-            method: "POST",
+    async getMyLogs() {
+        const response = await fetch(`${this.#base}/logs/my`, {
+            method: "GET",
             headers: this.#headers(),
-            body: JSON.stringify({ personFullName, userRole, logState }),
         });
+
         const json = await response.json();
-        if (!response.ok) throw new Error(json.message || "Failed to create log");
+
+        if (!response.ok) {
+            throw new Error(json.message || "Failed to fetch my logs");
+        }
+
         return json;
     }
 }

@@ -66,7 +66,7 @@ function ReportDetailDialog({ report, onClose, onReply, replyLoading }) {
                             <Typography sx={labelSx}>Attached Image</Typography>
                             <Box
                                 component="img"
-                                src={report.imageUrl}
+                                src={"http://localhost:8081"+report.imageUrl}
                                 alt="report attachment"
                                 sx={{ mt: 0.5, maxWidth: "100%", borderRadius: 1.5, border: "1px solid #2a3a6a" }}
                             />
@@ -248,16 +248,32 @@ export default function Reports() {
 
                         {/* Replied badge */}
                         <TableCell sx={cellSx}>
-                            {report.adminResponse ? (
-                                <Chip label="Replied" size="small" sx={{
-                                    bgcolor: "#22c55e20", color: "#22c55e", fontWeight: 600,
-                                    fontSize: 11, height: 22, border: "1px solid #22c55e40",
-                                }} />
+                            {report.adminReply ? (
+                                <Chip
+                                    label="Already Replied"
+                                    size="small"
+                                    sx={{
+                                        bgcolor: "#22c55e20",
+                                        color: "#22c55e",
+                                        fontWeight: 600,
+                                        fontSize: 11,
+                                        height: 22,
+                                        border: "1px solid #22c55e40",
+                                    }}
+                                />
                             ) : (
-                                <Chip label="Pending" size="small" sx={{
-                                    bgcolor: "#f59e0b20", color: "#f59e0b", fontWeight: 600,
-                                    fontSize: 11, height: 22, border: "1px solid #f59e0b40",
-                                }} />
+                                <Chip
+                                    label="Pending"
+                                    size="small"
+                                    sx={{
+                                        bgcolor: "#f59e0b20",
+                                        color: "#f59e0b",
+                                        fontWeight: 600,
+                                        fontSize: 11,
+                                        height: 22,
+                                        border: "1px solid #f59e0b40",
+                                    }}
+                                />
                             )}
                         </TableCell>
 

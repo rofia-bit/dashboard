@@ -9,11 +9,14 @@ export function useGetAllIncidents(incidentUseCase) {
     const fetchIncidents = async () => {
         setLoading(true);
         setError(null);
+
         try {
             const data = await incidentUseCase.getAllIncidents();
-            setIncidents(data);
+            setIncidents(data || []);
+            return data || [];
         } catch (err) {
             setError(err.message);
+            return [];
         } finally {
             setLoading(false);
         }
