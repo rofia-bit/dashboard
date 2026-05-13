@@ -1,15 +1,15 @@
 import { useState } from "react";
 
-export function useCreateShift(shiftUseCase) {
+export function useCreateAndAssignShift(shiftUseCase) {
     const [loading, setLoading] = useState(false);
-    const [error, setError]     = useState(null);
+    const [error, setError] = useState(null);
 
-    const createShift = async (shiftData) => {
+    const createAndAssignShift = async (data) => {
         setLoading(true);
         setError(null);
+
         try {
-            const result = await shiftUseCase.createShift(shiftData);
-            return result;
+            return await shiftUseCase.createAndAssignShift(data);
         } catch (err) {
             setError(err.message);
             return null;
@@ -18,5 +18,5 @@ export function useCreateShift(shiftUseCase) {
         }
     };
 
-    return { createShift, loading, error };
+    return { createAndAssignShift, loading, error };
 }

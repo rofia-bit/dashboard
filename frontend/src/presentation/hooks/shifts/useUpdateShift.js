@@ -2,14 +2,14 @@ import { useState } from "react";
 
 export function useUpdateShift(shiftUseCase) {
     const [loading, setLoading] = useState(false);
-    const [error, setError]     = useState(null);
+    const [error, setError] = useState(null);
 
-    const updateShift = async (shiftId, shiftData) => {
+    const updateShift = async (shiftId, data) => {
         setLoading(true);
         setError(null);
+
         try {
-            const result = await shiftUseCase.updateShift(shiftId, shiftData);
-            return result;
+            return await shiftUseCase.updateShift(shiftId, data);
         } catch (err) {
             setError(err.message);
             return null;

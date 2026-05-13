@@ -2,17 +2,17 @@ import { useState } from "react";
 
 export function useDeleteShift(shiftUseCase) {
     const [loading, setLoading] = useState(false);
-    const [error, setError]     = useState(null);
+    const [error, setError] = useState(null);
 
     const deleteShift = async (shiftId) => {
         setLoading(true);
         setError(null);
+
         try {
-            await shiftUseCase.deleteShift(shiftId);
-            return true;
+            return await shiftUseCase.deleteShift(shiftId);
         } catch (err) {
             setError(err.message);
-            return false;
+            return null;
         } finally {
             setLoading(false);
         }

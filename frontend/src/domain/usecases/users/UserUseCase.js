@@ -24,4 +24,23 @@ export class UserUseCase {
         return await this.userRepository.deleteUser(userId);
     }
 
+    async getSecurityGuards() {
+        const users = await this.userRepository.getAllUsers();
+
+        console.log("ALL USERS =", users);
+
+        const guards = users.filter(user => {
+            const role = user.role?.toUpperCase();
+
+            return (
+                role === "SECURITY_GUARD" ||
+                role === "ROLE_SECURITY_GUARD"
+            );
+        });
+
+        console.log("SECURITY GUARDS =", guards);
+
+        return guards;
+    }
+
 }

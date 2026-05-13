@@ -1,5 +1,4 @@
 export class ShiftUseCase {
-
     constructor(shiftRepository) {
         this.shiftRepository = shiftRepository;
     }
@@ -8,23 +7,31 @@ export class ShiftUseCase {
         return await this.shiftRepository.getAllShifts();
     }
 
-     async getMyShifts() {
-        return await this.shiftRepository.getMyShifts();
+    async createShift(data) {
+        return await this.shiftRepository.createShift(data);
     }
 
-    async getShiftById(shiftId) {
-        return await this.shiftRepository.getShiftById(shiftId);
-    }
-
-    async createShift(shiftData) {
-        return await this.shiftRepository.createShift(shiftData);
-    }
-
-    async updateShift(shiftId, shiftData) {
-        return await this.shiftRepository.updateShift(shiftId, shiftData);
+    async updateShift(shiftId, data) {
+        return await this.shiftRepository.updateShift(shiftId, data);
     }
 
     async deleteShift(shiftId) {
         return await this.shiftRepository.deleteShift(shiftId);
+    }
+
+    async assignShift(userId, shiftId) {
+        return await this.shiftRepository.assignShift(userId, shiftId);
+    }
+
+    async createAndAssignShift(data) {
+        const createdShift = await this.createShift({
+            onDate: data.onDate,
+            startTime: data.startTime,
+            endTime: data.endTime,
+        });
+
+        await this.assignShift(data.guardId, createdShift.shiftId);
+
+        return createdShift;
     }
 }

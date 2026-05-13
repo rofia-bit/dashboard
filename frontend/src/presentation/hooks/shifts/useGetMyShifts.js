@@ -1,26 +1,34 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export function useGetMyShifts(shiftUseCase) {
+export function useGetMyShifts(shiftUseCase, userId) {
     const [shifts, setShifts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetch = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const data = await shiftUseCase.getMyShifts();
-                setShifts(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetch();
-    }, []);
+    const fetchShifts = async () => {
+        setLoading(true);
+        setError(null);
 
-    return { shifts, loading, error };
+        try {
+            const data = await shiftUseCase.getMyAssignedShifts(userId);
+            setShifts(data || []);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (userId) {
+            fetchShifts();
+        }
+    }, [userId]);
+
+    return {
+        shifts,
+        loading,
+        error,
+        refetch: fetchShifts,
+    };
 }

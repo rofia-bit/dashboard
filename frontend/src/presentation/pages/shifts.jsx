@@ -13,7 +13,6 @@ import { useState, useMemo } from "react";
 import { ShiftRepositoryImpl } from "../../data/repositories/shifts/ShiftRepositoryImpl.js";
 import { ShiftUseCase }        from "../../domain/usecases/shifts/ShiftUseCase.js";
 import { useGetAllShifts }     from "../hooks/shifts/useGetAllShifts.js";
-import { useCreateShift }      from "../hooks/shifts/useCreateShift.js";
 import { useUpdateShift }      from "../hooks/shifts/useUpdateShift.js";
 import { useDeleteShift }      from "../hooks/shifts/useDeleteShift.js";
 
@@ -21,7 +20,16 @@ import Header        from "../components/headerPage.jsx";
 import Search        from "../components/searchBar.jsx";
 import MyTable, { cellSx } from "../components/table.jsx";
 import ConfirmDialog from "../components/dialog.jsx";
+import MenuItem from "@mui/material/MenuItem";
 
+import { UserRepositoryImpl } from "../../data/repositories/users/UserRepositoryImpl.js";
+import { UserUseCase } from "../../domain/usecases/users/UserUseCase.js";
+import { useGetSecurityGuards } from "../hooks/users/useGetSecurityGuards.js";
+
+import { useCreateAndAssignShift } from "../hooks/shifts/useCreateAndAssignShift.js";
+
+const userRepository = new UserRepositoryImpl();
+const userUseCase = new UserUseCase(userRepository);
 const shiftRepository = new ShiftRepositoryImpl();
 const shiftUseCase    = new ShiftUseCase(shiftRepository);
 
@@ -74,9 +82,20 @@ function toLocalInput(iso) {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-const EMPTY_FORM = { onDate: "", startTime: "", endTime: "" };
+const EMPTY_FORM = {
+    onDate: "",
+    startTime: "",
+    endTime: "",
+    guardId: "",
+};
 
-function ShiftFormDialog({ open, onClose, onSubmit, loading, initial }) {
+
+function ShiftFormDialog({ open,
+    onClose,
+    onSubmit,
+    loading,
+    initial,
+    guards, }) {
     const [form, setForm] = useState(initial ?? EMPTY_FORM);
     const isEdit = !!initial;
 
@@ -84,14 +103,19 @@ function ShiftFormDialog({ open, onClose, onSubmit, loading, initial }) {
 
     const handleSubmit = () => {
         const payload = {
-            onDate:    new Date(form.onDate).toISOString(),
-            startTime: new Date(form.startTime).toISOString(),
-            endTime:   new Date(form.endTime).toISOString(),
+            onDate: form.onDate,
+            startTime: form.startTime + ":00",
+            endTime: form.endTime + ":00",
+            guardId: form.guardId,
         };
         onSubmit(payload);
     };
 
-    const valid = form.onDate && form.startTime && form.endTime;
+    const valid =
+        form.onDate &&
+        form.startTime &&
+        form.endTime &&
+        (isEdit || form.guardId);
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
@@ -112,20 +136,42 @@ function ShiftFormDialog({ open, onClose, onSubmit, loading, initial }) {
                     />
                     <TextField
                         label="Start Time"
-                        type="datetime-local"
-                        value={toLocalInput(form.startTime) || form.startTime}
+                        type="time"       
+        
+
+                        value={form.startTime}          
                         onChange={set("startTime")}
                         InputLabelProps={{ shrink: true }}
                         fullWidth sx={inputSx}
                     />
                     <TextField
                         label="End Time"
-                        type="datetime-local"
-                        value={toLocalInput(form.endTime) || form.endTime}
+                        type="time"
+                        value={form.endTime}          
                         onChange={set("endTime")}
                         InputLabelProps={{ shrink: true }}
                         fullWidth sx={inputSx}
                     />
+
+                    {!isEdit && (
+                        <TextField
+                            select
+                            label="Security Guard"
+                            value={form.guardId}
+                            onChange={set("guardId")}
+                            fullWidth
+                            sx={inputSx}
+                        >
+                            {guards?.map((guard) => (
+                                <MenuItem
+                                    key={guard.userId}
+                                    value={guard.userId}
+                                >
+                                    {guard.fullname}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    )}
                 </Stack>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
@@ -184,8 +230,15 @@ function DetailDialog({ shift, onClose }) {
 }
 
 export default function Shifts() {
+
+    const { guards } = useGetSecurityGuards(userUseCase);
+
     const { shifts, loading, error, refetch } = useGetAllShifts(shiftUseCase);
-    const { createShift, loading: createLoading } = useCreateShift(shiftUseCase);
+    const {
+        createAndAssignShift,
+        loading: createLoading
+    } = useCreateAndAssignShift(shiftUseCase);
+
     const { updateShift, loading: updateLoading } = useUpdateShift(shiftUseCase);
     const { deleteShift, loading: deleteLoading } = useDeleteShift(shiftUseCase);
 
@@ -196,7 +249,7 @@ export default function Shifts() {
     const [editTarget, setEditTarget]   = useState(null);
 
     const handleCreate = async (data) => {
-        const ok = await createShift(data);
+        const ok = await createAndAssignShift(data);
         if (ok) { setCreateOpen(false); refetch(); }
     };
 
@@ -323,6 +376,7 @@ export default function Shifts() {
                 onClose={() => setCreateOpen(false)}
                 onSubmit={handleCreate}
                 loading={createLoading}
+                guards={guards}
             />
 
             {editTarget && (
@@ -331,10 +385,12 @@ export default function Shifts() {
                     onClose={() => setEditTarget(null)}
                     onSubmit={handleEdit}
                     loading={updateLoading}
+                    guards={guards}
                     initial={{
-                        onDate:    editTarget.onDate?.slice(0, 10) ?? "",
+                        onDate: editTarget.onDate?.slice(0, 10) ?? "",
                         startTime: editTarget.startTime ?? "",
-                        endTime:   editTarget.endTime ?? "",
+                        endTime: editTarget.endTime ?? "",
+                        guardId: editTarget.guardId ?? "",
                     }}
                 />
             )}

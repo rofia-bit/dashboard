@@ -1,18 +1,17 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 
-export function useGetAllShifts(shiftUseCase) {
-    const [shifts, setShifts] = useState([]);
+export function useGetSecurityGuards(userUseCase) {
+    const [guards, setGuards] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const fetchShifts = async () => {
+    const fetchGuards = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            const data = await shiftUseCase.getAllShifts();
-            setShifts(data || []);
+            const data = await userUseCase.getSecurityGuards();
+            setGuards(data || []);
             return data || [];
         } catch (err) {
             setError(err.message);
@@ -23,8 +22,8 @@ export function useGetAllShifts(shiftUseCase) {
     };
 
     useEffect(() => {
-        fetchShifts();
+        fetchGuards();
     }, []);
 
-    return { shifts, loading, error, refetch: fetchShifts };
+    return { guards, loading, error, refetch: fetchGuards };
 }
