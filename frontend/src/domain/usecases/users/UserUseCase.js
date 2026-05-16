@@ -43,4 +43,12 @@ export class UserUseCase {
         return guards;
     }
 
+    async deactivateUser(userId) {
+        return await this.userRepository.deactivateUser(userId);
+    }
+
+    async activateUser(userId) {
+        return await this.userRepository.activateUser(userId);
+    }
+
 }

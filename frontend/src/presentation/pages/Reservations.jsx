@@ -56,6 +56,7 @@ const ALL_STATUSES = ["PENDING", "CONFIRMED", "CANCELED", "COMPLETED"];
 const FILTER_OPTIONS = ALL_STATUSES.map(s => ({ value: s, label: STATUS_STYLE[s].label }));
 
 const COLUMNS = [
+    { label: "Facility" },
     { label: "Reservation ID" },
     { label: "User ID" },
     { label: "Date" },
@@ -72,6 +73,38 @@ const labelSx = {
     letterSpacing: 0.8,
     mb: 0.3,
 };
+
+const API_BASE_URL = "http://localhost:8081";
+
+function formatTime(time) {
+    if (!time) return "—";
+
+    // Backend sends: "10:00:00"
+    const [hour, minute] = time.split(":");
+
+    return `${hour}:${minute}`;
+}
+
+function formatReservationDate(date) {
+    if (!date) return "—";
+
+    // Backend sends UTC date like: 2026-05-15T23:00:00.000Z
+    return new Date(date).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+    });
+}
+
+function getFacilityImage(path) {
+    if (!path) return null;
+
+    // If image already full URL
+    if (path.startsWith("http")) return path;
+
+    // If backend sends: /uploads/facilities/...
+    return `${API_BASE_URL}${path}`;
+}
 
 function ReservationDetailDialog({ reservation, onClose }) {
     if (!reservation) return null;
@@ -92,16 +125,12 @@ function ReservationDetailDialog({ reservation, onClose }) {
         {
             icon: <AccessTimeOutlinedIcon sx={{ fontSize: 15 }} />,
             label: "Start Time",
-            value: reservation.startTime
-                ? new Date(reservation.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                : "—",
-        },
+            value: formatTime(reservation.startTime),        },
         {
             icon: <AccessTimeOutlinedIcon sx={{ fontSize: 15 }} />,
             label: "End Time",
-            value: reservation.endTime
-                ? new Date(reservation.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                : "—",
+            value: formatTime(reservation.endTime)  
+        
         },
         {
             icon: <PeopleOutlineIcon sx={{ fontSize: 15 }} />,
@@ -122,6 +151,29 @@ function ReservationDetailDialog({ reservation, onClose }) {
 
             <DialogContent dividers sx={{ borderColor: "#2a3a6a" }}>
                 <Stack spacing={2}>
+                    <Box>
+                        <Typography sx={labelSx}>Facility</Typography>
+
+                        <Stack direction="row" alignItems="center" spacing={1.2}>
+                            <Box
+                                component="img"
+                                src={getFacilityImage(reservation.facilityPic)}
+                                alt={reservation.facilityName || "Facility"}
+                                sx={{
+                                    width: 54,
+                                    height: 54,
+                                    borderRadius: 2,
+                                    objectFit: "cover",
+                                    border: "1px solid #2a3a6a",
+                                }}
+                            />
+
+                            <Typography sx={{ color: "#e2e8f0", fontSize: 14, fontWeight: 700 }}>
+                                {reservation.facilityName || "Unknown Facility"}
+                            </Typography>
+                        </Stack>
+                    </Box>
+
                     <Box>
                         <Typography sx={labelSx}>Reservation ID</Typography>
                         <Typography sx={{ color: "#6b7280", fontSize: 11, fontFamily: "monospace" }}>
@@ -204,10 +256,11 @@ export default function Reservations() {
         const currentStatus = (localStatuses[r.reservationId] ?? r.status ?? "PENDING").toUpperCase();
         const statusMatch   = filterStatus === "ALL" || currentStatus === filterStatus;
         const q             = search.toLowerCase();
-        const searchMatch   = !search ||
+        const searchMatch = !search ||
             r.reservationId?.toLowerCase().includes(q) ||
             r.userId?.toLowerCase().includes(q) ||
-            r.status?.toLowerCase().includes(q);
+            r.status?.toLowerCase().includes(q) ||
+            r.facilityName?.toLowerCase().includes(q);
         return statusMatch && searchMatch;
     }), [reservations, search, filterStatus, localStatuses]);
 
@@ -246,6 +299,33 @@ export default function Reservations() {
                             sx={{ "&:hover": { bgcolor: "#1f2e55" }, transition: "background 0.15s" }}>
 
                             <TableCell sx={cellSx}>
+                                <Stack direction="row" alignItems="center" spacing={1.2}>
+                                    <Box
+                                        component="img"
+                                        src={getFacilityImage(reservation.facilityPic)}
+                                        alt={reservation.facilityName || "Facility"}
+                                        sx={{
+                                            width: 42,
+                                            height: 42,
+                                            borderRadius: 2,
+                                            objectFit: "cover",
+                                            border: "1px solid #2a3a6a",
+                                            bgcolor: "#111827",
+                                        }}
+                                    />
+
+                                    <Box>
+                                        <Typography sx={{ color: "#e2e8f0", fontSize: 13, fontWeight: 700 }}>
+                                            {reservation.facilityName || "Unknown Facility"}
+                                        </Typography>
+
+                                        <Typography sx={{ color: "#6b7280", fontSize: 11 }}>
+                                            {reservation.reserverName || "Unknown Reserver"}
+                                        </Typography>
+                                    </Box>
+                                </Stack>
+                            </TableCell>
+                            <TableCell sx={cellSx}>
                                 <Typography sx={{ fontSize: 11, color: "#6b7280", fontFamily: "monospace" }}>
                                     {reservation.reservationId?.slice(0, 8)}…
                                 </Typography>
@@ -259,16 +339,14 @@ export default function Reservations() {
 
                             <TableCell sx={cellSx}>
                                 <Typography sx={{ fontSize: 12, color: "#a0a9c9" }}>
-                                    {reservation.reservationDate
-                                        ? new Date(reservation.reservationDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
-                                        : "—"}
+                                    {formatReservationDate(reservation.reservationDate)}
                                 </Typography>
                             </TableCell>
 
                             <TableCell sx={cellSx}>
                                 <Typography sx={{ fontSize: 12, color: "#a0a9c9" }}>
                                     {reservation.startTime && reservation.endTime
-                                        ? `${new Date(reservation.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – ${new Date(reservation.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                                        ? `${formatTime(reservation.startTime)} – ${formatTime(reservation.endTime)}`
                                         : "—"}
                                 </Typography>
                             </TableCell>

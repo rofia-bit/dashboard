@@ -87,4 +87,31 @@ export class IncidentRepositoryImpl {
         if (!response.ok) throw new Error(json.message || "Failed to create incident");
         return json;
     }
+
+    async assignIncidentToStaff(incidentId, staffId) {
+        const response = await fetch(`${this.#base}/incidents/${incidentId}/assign`, {
+            method: "PATCH",
+            headers: this.#headers(),
+            body: JSON.stringify({
+                staffId: staffId,
+            }),
+        });
+
+        if (!response.ok) {
+            let errorMessage = "Failed to assign incident to staff";
+
+            try {
+                const errorJson = await response.json();
+                errorMessage = errorJson.message || errorMessage;
+            } catch (_) {}
+
+            throw new Error(errorMessage);
+        }
+
+        try {
+            return await response.json();
+        } catch (_) {
+            return true;
+        }
+    }
 }

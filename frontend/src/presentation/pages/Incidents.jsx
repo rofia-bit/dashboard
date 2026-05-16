@@ -5,13 +5,20 @@ import {
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 
 import { IncidentRepositoryImpl } from "../../data/repositories/incidents/IncidentRepositoryImpl.js";
 import { IncidentUseCase } from "../../domain/usecases/incidents/IncidentUseCase.js";
 import { useGetAllIncidents } from "../hooks/incidents/useGetAllIncidents.js";
 import { useUpdateIncidentStatus } from "../hooks/incidents/useUpdateIncidentStatus.js";
 import { useDeleteIncident } from "../hooks/incidents/useDeleteIncident.js";
+import { useAssignIncidentToStaff } from "../hooks/incidents/useAssignIncidentToStaff.js";
+
+import { UserRepositoryImpl } from "../../data/repositories/users/UserRepositoryImpl.js";
+import { UserUseCase } from "../../domain/usecases/users/UserUseCase.js";
+import { useGetUsers } from "../hooks/users/getAllUsers/useGetUsers.js";
+
 
 import Header        from "../components/headerPage.jsx";
 import Search        from "../components/searchBar.jsx";
@@ -21,8 +28,10 @@ import ConfirmDialog from "../components/dialog.jsx";
 const incidentRepository = new IncidentRepositoryImpl();
 const incidentUseCase    = new IncidentUseCase(incidentRepository);
 
+const userRepository = new UserRepositoryImpl();
+const userUseCase = new UserUseCase(userRepository);
 
-const ACTIONABLE_STATUSES = ["PENDING", "ASSIGNED"];
+const ACTIONABLE_STATUSES = ["PENDING"];
 
 const STATUS_STYLE = {
     PENDING: {
@@ -61,6 +70,102 @@ const COLUMNS = [
     { label: "Status" },
     { label: "Actions", align: "right" },
 ];
+
+function AssignIncidentDialog({
+    incident,
+    staffUsers,
+    selectedStaffId,
+    setSelectedStaffId,
+    loading,
+    onClose,
+    onConfirm
+}) {
+    if (!incident) return null;
+
+    return (
+        <Dialog
+            open
+            onClose={onClose}
+            maxWidth="xs"
+            fullWidth
+            PaperProps={{
+                sx: {
+                    bgcolor: "#1a2444",
+                    border: "1px solid #2a3a6a",
+                    borderRadius: 2,
+                },
+            }}
+        >
+            <DialogTitle sx={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>
+                Assign Incident
+            </DialogTitle>
+
+            <DialogContent dividers sx={{ borderColor: "#2a3a6a" }}>
+                <Typography sx={{ color: "#a0a9c9", fontSize: 13, mb: 2 }}>
+                    Select a staff member to handle this incident.
+                </Typography>
+
+                <Select
+                    fullWidth
+                    value={selectedStaffId}
+                    onChange={(e) => setSelectedStaffId(e.target.value)}
+                    size="small"
+                    displayEmpty
+                    sx={{
+                        color: "#fff",
+                        bgcolor: "#0f1523",
+                        fontSize: 13,
+                        "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#2a3a6a",
+                        },
+                        "& .MuiSvgIcon-root": {
+                            color: "#fff",
+                        },
+                    }}
+                    MenuProps={{
+                        PaperProps: {
+                            sx: { bgcolor: "#1a2444", color: "#fff" },
+                        },
+                    }}
+                >
+                    <MenuItem value="" disabled>
+                        Select staff
+                    </MenuItem>
+
+                    {staffUsers.map((staff) => (
+                        <MenuItem key={staff.userId} value={staff.userId}>
+                            {staff.fullname} - {staff.email}
+                        </MenuItem>
+                    ))}
+                </Select>
+
+                {staffUsers.length === 0 && (
+                    <Typography sx={{ color: "#ef4444", fontSize: 12, mt: 1 }}>
+                        No active staff users found.
+                    </Typography>
+                )}
+            </DialogContent>
+
+            <DialogActions sx={{ px: 3, pb: 2 }}>
+                <Button
+                    onClick={onClose}
+                    sx={{ color: "#a0a9c9", textTransform: "none" }}
+                >
+                    Cancel
+                </Button>
+
+                <Button
+                    onClick={onConfirm}
+                    disabled={!selectedStaffId || loading}
+                    variant="contained"
+                    sx={{ textTransform: "none" }}
+                >
+                    {loading ? "Assigning..." : "Assign"}
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
 
 
 const FILTER_OPTIONS = ACTIONABLE_STATUSES.map(s => ({ value: s, label: STATUS_STYLE[s].label }));
@@ -116,10 +221,32 @@ export default function Incidents() {
     const { updateStatus, loading: statusLoading } = useUpdateIncidentStatus(incidentUseCase);
     const { deleteIncident, loading: deleteLoading } = useDeleteIncident(incidentUseCase);
 
+    const { users, loading: usersLoading, getUsers } = useGetUsers(userUseCase);
+
+    useEffect(() => {
+        getUsers();
+    }, []);
+
+    
+    
+
+    const staffUsers = useMemo(() => {
+        return (users || []).filter(user =>
+            user.role === "STAFF" && user.isActive === true
+        );
+    }, [users]);
+
     const [search, setSearch]               = useState("");
     const [filterStatus, setFilterStatus]   = useState("ALL");
     const [detailTarget, setDetailTarget]   = useState(null);
     const [deleteTarget, setDeleteTarget]   = useState(null);
+
+    const [assignTarget, setAssignTarget] = useState(null);
+    const [selectedStaffId, setSelectedStaffId] = useState("");
+
+    const { assignIncident, loading: assignLoading } =
+        useAssignIncidentToStaff(incidentUseCase);
+    
 
     const handleStatusChange = async (incidentId, newStatus) => {
         const result = await updateStatus(incidentId, newStatus);
@@ -127,9 +254,26 @@ export default function Incidents() {
     };
 
     const handleDelete = async () => {
-        const ok = await deleteIncident(deleteTarget.incidentId);
-        if (ok) { setDeleteTarget(null); refetch(); }
+            const ok = await deleteIncident(deleteTarget.incidentId);
+            if (ok) { setDeleteTarget(null); refetch(); }
     };
+
+    const handleAssignIncident = async () => {
+        if (!assignTarget || !selectedStaffId) return;
+
+        const result = await assignIncident(
+            assignTarget.incidentId,
+            selectedStaffId
+        );
+
+        if (result) {
+            setAssignTarget(null);
+            setSelectedStaffId("");
+            await refetch();
+        }
+    };
+
+        
 
     const filtered = useMemo(() => incidents.filter(i => {
         const statusMatch = filterStatus === "ALL" || i.status?.toUpperCase() === filterStatus;
@@ -240,6 +384,18 @@ export default function Incidents() {
 
                             <TableCell sx={cellSx} align="right">
                                 <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                                    {currentStatus === "PENDING" && (
+                                        <Tooltip title="Assign to staff">
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => setAssignTarget(incident)}
+                                                sx={{ color: "#6b7280", "&:hover": { color: "#3b82f6", bgcolor: "#3b82f615" } }}
+                                            >
+                                                <AssignmentIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
+
                                     <Tooltip title="View details">
                                         <IconButton size="small" onClick={() => setDetailTarget(incident)}
                                             sx={{ color: "#6b7280", "&:hover": { color: "#2563eb", bgcolor: "#2563eb15" } }}>
@@ -267,6 +423,19 @@ export default function Incidents() {
                 loading={deleteLoading}
                 onClose={() => setDeleteTarget(null)}
                 onConfirm={handleDelete}
+            />
+
+            <AssignIncidentDialog
+                incident={assignTarget}
+                staffUsers={staffUsers}
+                selectedStaffId={selectedStaffId}
+                setSelectedStaffId={setSelectedStaffId}
+                loading={assignLoading}
+                onClose={() => {
+                    setAssignTarget(null);
+                    setSelectedStaffId("");
+                }}
+                onConfirm={handleAssignIncident}
             />
         </Box>
     );

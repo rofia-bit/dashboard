@@ -7,6 +7,8 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import { useActivateUser } from "../hooks/users/activate/useActivateUser.js";
 import { useState, useEffect, useMemo } from "react";
 
 import { UserRepositoryImpl } from "../../data/repositories/users/UserRepositoryImpl.js";
@@ -14,6 +16,8 @@ import { UserUseCase } from "../../domain/usecases/users/UserUseCase.js";
 import { useGetUsers } from "../hooks/users/getAllUsers/useGetUsers.js";
 import { useRegisterUser } from "../hooks/users/register/useRegisterUser.js";
 import { useDeleteUser } from "../hooks/users/delete/useDeleteUser.js";
+import { useDeactivateUser } from "../hooks/users/deactivate/useDeactivateUser.js";
+import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
 
 import Header    from "../components/headerPage.jsx";
 import Search from "../components/searchBar.jsx";
@@ -106,11 +110,16 @@ function Users() {
     const { users, loading, error, getUsers }       = useGetUsers(userUseCase);
     const { registerUser, loading: registerLoading } = useRegisterUser(userUseCase);
     const { deleteUser,   loading: deleteLoading }  = useDeleteUser(userUseCase);
+    const { deactivateUser, loading: deactivateLoading } = useDeactivateUser(userUseCase);
 
     const [search, setSearch]             = useState("");
     const [filterRole, setFilterRole]     = useState("ALL");
     const [addOpen, setAddOpen]           = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deactivateTarget, setDeactivateTarget] = useState(null);
+    const { activateUser, loading: activateLoading } = useActivateUser(userUseCase);
+
+    const [statusTarget, setStatusTarget] = useState(null);
 
     useEffect(() => { getUsers(); }, []);
 
@@ -123,6 +132,19 @@ function Users() {
     const handleDelete = async () => {
         const ok = await deleteUser(deleteTarget.userId);
         if (ok) { await getUsers(); setDeleteTarget(null); }
+    };
+
+    const handleToggleActive = async () => {
+        if (!statusTarget) return;
+
+        const ok = statusTarget.isActive
+            ? await deactivateUser(statusTarget.userId)
+            : await activateUser(statusTarget.userId);
+
+        if (ok) {
+            await getUsers();
+            setStatusTarget(null);
+        }
     };
 
     const filtered = useMemo(() => users.filter(u => {
@@ -197,18 +219,39 @@ function Users() {
                                 </TableCell>
 
                                 <TableCell sx={cellSx}>
-                                    <Chip label="Active" size="small" sx={{
-                                        bgcolor: "#22c55e20", color: "#22c55e", fontWeight: 600,
-                                        fontSize: 11, height: 24, border: "1px solid #22c55e40",
-                                    }} />
+                                    <Chip
+                                        label={user.isActive ? "Active" : "Inactive"}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: user.isActive ? "#22c55e20" : "#ef444420",
+                                            color: user.isActive ? "#22c55e" : "#ef4444",
+                                            fontWeight: 600,
+                                            fontSize: 11,
+                                            height: 24,
+                                            border: `1px solid ${user.isActive ? "#22c55e40" : "#ef444440"}`,
+                                        }}
+                                    />
                                 </TableCell>
 
                                 <TableCell sx={cellSx} align="right">
                                     <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-                                        <Tooltip title="Edit user">
-                                            <IconButton size="small"
-                                                sx={{ color: "#6b7280", "&:hover": { color: "#2563eb", bgcolor: "#2563eb15" } }}>
-                                                <EditOutlinedIcon fontSize="small" />
+                                        <Tooltip title={user.isActive ? "Deactivate user" : "Activate user"}>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => setStatusTarget(user)}
+                                                sx={{
+                                                    color: "#6b7280",
+                                                    "&:hover": {
+                                                        color: user.isActive ? "#f59e0b" : "#22c55e",
+                                                        bgcolor: user.isActive ? "#f59e0b15" : "#22c55e15",
+                                                    },
+                                                }}
+                                            >
+                                                {user.isActive ? (
+                                                    <BlockOutlinedIcon fontSize="small" />
+                                                ) : (
+                                                    <CheckCircleOutlineIcon fontSize="small" />
+                                                )}
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Delete user">
@@ -233,6 +276,20 @@ function Users() {
                 loading={deleteLoading}
                 onClose={() => setDeleteTarget(null)}
                 onConfirm={handleDelete}
+            />
+
+            <ConfirmDialog
+                open={!!statusTarget}
+                title={statusTarget?.isActive ? "Deactivate User" : "Activate User"}
+                message={
+                    statusTarget?.isActive
+                        ? `Are you sure you want to deactivate ${statusTarget?.fullname}?`
+                        : `Are you sure you want to activate ${statusTarget?.fullname}?`
+                }
+                loading={activateLoading || deactivateLoading}
+                onClose={() => setStatusTarget(null)}
+                onConfirm={handleToggleActive}
+                confirmLabel={statusTarget?.isActive ? "Deactivate" : "Activate"}
             />
         </Box>
     );

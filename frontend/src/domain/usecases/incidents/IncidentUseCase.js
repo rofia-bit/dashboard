@@ -27,4 +27,8 @@ export class IncidentUseCase {
     async createIncident(incidentDescription, userId, category) {
         return await this.incidentRepository.createIncident(incidentDescription, userId, category);
     }
+
+    async assignIncidentToStaff(incidentId, staffId) {
+        return await this.incidentRepository.assignIncidentToStaff(incidentId, staffId);
+    }
 }

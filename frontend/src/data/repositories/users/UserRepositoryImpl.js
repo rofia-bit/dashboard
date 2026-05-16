@@ -64,4 +64,48 @@ export class UserRepositoryImpl {
         return true;
     }
 
+    async deactivateUser(userId) {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:8081/users/${userId}/deactivate`, {
+            method: "PATCH",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        const text = await response.text();
+
+        console.log("Deactivate status:", response.status);
+        console.log("Deactivate response:", text);
+
+        if (!response.ok) {
+            throw new Error(text || `Failed to deactivate user. Status: ${response.status}`);
+        }
+
+        return text ? JSON.parse(text) : true;
+    }
+
+    async activateUser(userId) {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:8081/users/${userId}/activate`, {
+            method: "PATCH",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        const text = await response.text();
+
+        console.log("Activate status:", response.status);
+        console.log("Activate response:", text);
+
+        if (!response.ok) {
+            throw new Error(text || `Failed to activate user. Status: ${response.status}`);
+        }
+
+        return text ? JSON.parse(text) : true;
+    }
+
 }
